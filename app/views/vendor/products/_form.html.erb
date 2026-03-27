@@ -1,57 +1,91 @@
-<%= form_with model: [:vendor, product], class: "space-y-4" do |f| %>
+<%= form_with model: [:vendor, product], class: "space-y-6" do |f| %>
   <% if product.errors.any? %>
-    <div class="bg-red-50 border border-red-300 rounded p-3 text-sm text-red-700">
-      <% product.errors.full_messages.each do |msg| %>
-        <p>• <%= msg %></p>
-      <% end %>
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+      <h4 class="text-sm font-bold text-red-700 mb-2">Please fix the following errors:</h4>
+      <ul class="space-y-1">
+        <% product.errors.full_messages.each do |msg| %>
+          <li class="text-sm text-red-600 flex items-start gap-2">
+            <span class="mt-0.5 flex-shrink-0">•</span><%= msg %>
+          </li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
     <div>
-      <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= f.text_field :name, class: "w-full border rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500" %>
+      <%= f.label :name, "Product Name", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+      <%= f.text_field :name, placeholder: "e.g. Basmati Rice 5kg",
+            class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
     </div>
 
     <div>
-      <%= f.label :price, "Price (Rs.)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= f.number_field :price, step: 0.01, min: 0, class: "w-full border rounded px-3 py-2 text-sm" %>
+      <%= f.label :price, "Price (Rs.)", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+      <div class="relative">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold">Rs.</span>
+        <%= f.number_field :price, step: 0.01, min: 0, placeholder: "0.00",
+              class: "w-full border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
     </div>
 
     <div>
-      <%= f.label :stock, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.label :stock, "Stock Quantity", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
       <%= f.number_field :stock, min: 0, placeholder: "Leave blank for unlimited",
-            class: "w-full border rounded px-3 py-2 text-sm" %>
+            class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      <p class="text-xs text-slate-400 mt-1">Leave blank for unlimited stock</p>
     </div>
 
     <div>
-      <%= f.label :category_id, "Category", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.label :category_id, "Category", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
       <%= f.collection_select :category_id, Category.ordered, :id, :name,
-            { include_blank: "— Select Category —" }, class: "w-full border rounded px-3 py-2 text-sm" %>
+            { include_blank: "— Select Category —" },
+            class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
     </div>
   </div>
 
   <div>
-    <%= f.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= f.text_area :description, rows: 4, class: "w-full border rounded px-3 py-2 text-sm" %>
+    <%= f.label :description, "Description", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+    <%= f.text_area :description, rows: 4,
+          placeholder: "Describe your product — quality, features, usage...",
+          class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" %>
   </div>
 
   <div>
-    <%= f.label :images, "Product Images", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= f.file_field :images, multiple: true, accept: "image/*", class: "w-full text-sm" %>
+    <%= f.label :images, "Product Images", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+    <div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-green-400 transition cursor-pointer">
+      <%= f.file_field :images, multiple: true, accept: "image/*",
+            class: "text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer" %>
+      <p class="text-xs text-slate-400 mt-2">PNG, JPG, WEBP up to 10MB each. Multiple images supported.</p>
+    </div>
+    <% if product.images.attached? %>
+      <div class="flex gap-2 mt-3 flex-wrap">
+        <% product.images.each do |img| %>
+          <%= image_tag img, class: "h-16 w-16 object-cover rounded-xl border-2 border-slate-200" %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
-  <div class="flex items-center space-x-4">
-    <label class="flex items-center space-x-2">
-      <%= f.check_box :published %>
-      <span class="text-sm">Published (visible to customers)</span>
+  <div class="flex flex-wrap items-center gap-4 pt-2">
+    <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition flex-1 min-w-48">
+      <%= f.check_box :published, class: "w-4 h-4 accent-green-600" %>
+      <div>
+        <p class="text-sm font-semibold text-slate-800">Published</p>
+        <p class="text-xs text-slate-400">Visible to customers</p>
+      </div>
     </label>
-    <label class="flex items-center space-x-2">
-      <%= f.check_box :featured %>
-      <span class="text-sm">Featured</span>
+    <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition flex-1 min-w-48">
+      <%= f.check_box :featured, class: "w-4 h-4 accent-amber-500" %>
+      <div>
+        <p class="text-sm font-semibold text-slate-800">Featured</p>
+        <p class="text-xs text-slate-400">Highlight on your store page</p>
+      </div>
     </label>
   </div>
 
-  <%= f.submit product.new_record? ? "Create Product" : "Update Product",
-        class: "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-medium cursor-pointer" %>
+  <div class="flex items-center gap-3 pt-2">
+    <%= f.submit product.new_record? ? "Create Product" : "Save Changes",
+          class: "bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl cursor-pointer transition shadow-sm" %>
+    <%= link_to "Cancel", vendor_products_path, class: "text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-3" %>
+  </div>
 <% end %>

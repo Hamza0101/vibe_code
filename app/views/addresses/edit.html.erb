@@ -1,0 +1,61 @@
+<% content_for :title, "Edit Address" %>
+
+<div class="max-w-xl mx-auto px-4 py-10">
+  <div class="mb-8">
+    <%= link_to addresses_path, class: "text-sm text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1 mb-4" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      Back to Addresses
+    <% end %>
+    <h1 class="text-2xl font-bold text-slate-900">Edit Address</h1>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <%= form_with model: @address, url: address_path(@address), method: :patch, class: "space-y-5" do |f| %>
+      <div>
+        <%= f.label :line1, "Address Line 1", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_field :line1, placeholder: "Street, House/Flat number",
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        <% if @address.errors[:line1].any? %>
+          <p class="text-red-500 text-xs mt-1"><%= @address.errors[:line1].first %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :line2, "Address Line 2 (optional)", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_field :line2, placeholder: "Apartment, area, landmark",
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :city, "City", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.text_field :city, placeholder: "e.g. Karachi",
+                class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+        <div>
+          <%= f.label :province, "Province", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.select :province,
+                [["Sindh", "Sindh"], ["Punjab", "Punjab"], ["KPK", "KPK"], ["Balochistan", "Balochistan"], ["ICT", "ICT"]],
+                { include_blank: "Select..." },
+                class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :postal_code, "Postal Code (optional)", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_field :postal_code, placeholder: "e.g. 75500",
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+        <%= f.check_box :is_default, class: "w-4 h-4 accent-green-600" %>
+        <%= f.label :is_default, class: "text-sm font-medium text-slate-700 cursor-pointer" do %>
+          Set as default address
+        <% end %>
+      </div>
+
+      <%= f.submit "Update Address",
+            class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl cursor-pointer transition shadow-sm" %>
+    <% end %>
+  </div>
+</div>

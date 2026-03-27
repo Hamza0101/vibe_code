@@ -1,28 +1,37 @@
-<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
-  <%= link_to product_path(product) do %>
-    <div class="h-36 bg-gray-100 flex items-center justify-center overflow-hidden">
+<div class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-green-300 transition-all duration-200 flex flex-col">
+  <%= link_to product_path(product), class: "flex-1 flex flex-col" do %>
+    <div class="h-40 bg-slate-100 overflow-hidden relative">
       <% if product.images.attached? %>
-        <%= image_tag product.primary_image, class: "h-full w-full object-cover" %>
+        <%= image_tag product.primary_image, class: "h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" %>
       <% else %>
-        <span class="text-4xl text-gray-300">📦</span>
+        <div class="h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+          <span class="text-5xl opacity-30">📦</span>
+        </div>
+      <% end %>
+      <% unless product.in_stock? %>
+        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">Out of Stock</span>
+        </div>
       <% end %>
     </div>
-    <div class="p-3">
-      <h3 class="font-medium text-gray-800 text-sm line-clamp-2"><%= product.name %></h3>
-      <p class="text-xs text-gray-500 mt-0.5"><%= product.store.name %></p>
-      <div class="flex items-center justify-between mt-2">
-        <span class="font-bold text-green-700">Rs. <%= number_with_delimiter(product.price) %></span>
-        <% unless product.in_stock? %>
-          <span class="text-xs text-red-500">Out of stock</span>
-        <% end %>
-      </div>
+    <div class="p-3 flex-1 flex flex-col">
+      <h3 class="font-semibold text-slate-800 text-sm line-clamp-2 leading-snug group-hover:text-green-700 transition"><%= product.name %></h3>
+      <p class="text-xs text-slate-400 mt-1 line-clamp-1"><%= product.store.name %></p>
+      <p class="font-bold text-green-700 mt-auto pt-2 text-base">Rs. <%= number_with_delimiter(product.price) %></p>
     </div>
   <% end %>
   <div class="px-3 pb-3">
     <%= button_to add_item_cart_path, method: :post, params: { product_id: product.id },
-          class: "w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1.5 rounded font-medium",
+          class: "w-full py-2 rounded-xl text-xs font-semibold transition #{ product.in_stock? ? 'bg-green-600 hover:bg-green-700 text-white cursor-pointer' : 'bg-slate-100 text-slate-400 cursor-not-allowed' }",
           disabled: !product.in_stock? do %>
-      🛒 Add to Cart
+      <% if product.in_stock? %>
+        <span class="flex items-center justify-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          Add to Cart
+        </span>
+      <% else %>
+        Unavailable
+      <% end %>
     <% end %>
   </div>
 </div>

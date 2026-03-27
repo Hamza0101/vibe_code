@@ -6,6 +6,23 @@ class CartsController < ApplicationController
 
   def add_item
     product = Product.published.find(params[:product_id])
+
+    unless product.store.verified?
+      respond_to do |format|
+        format.html { redirect_back fallback_location: root_path, alert: "This store is not available." }
+        format.turbo_stream { render turbo_stream: turbo_stream.update("cart-flash", "<p class='text-red-600'>Store unavailable.</p>") }
+      end
+      return
+    end
+
+    unless product.in_stock?
+      respond_to do |format|
+        format.html { redirect_back fallback_location: root_path, alert: "Product is out of stock." }
+        format.turbo_stream { render turbo_stream: turbo_stream.update("cart-flash", "<p class='text-red-600'>Out of stock.</p>") }
+      end
+      return
+    end
+
     variant = params[:product_variant_id].present? ? ProductVariant.find(params[:product_variant_id]) : nil
     quantity = (params[:quantity] || 1).to_i
 
@@ -16,7 +33,7 @@ class CartsController < ApplicationController
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update("cart-count", current_cart.item_count.to_s),
-          turbo_stream.update("cart-flash", "<p class='text-green-600'>Added to cart!</p>")
+          turbo_stream.update("cart-flash", "<p class='text-green-600 font-medium'>Added to cart!</p>")
         ]
       end
     end

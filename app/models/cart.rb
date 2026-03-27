@@ -16,9 +16,8 @@ class Cart < ApplicationRecord
   end
 
   def add_item(product, variant = nil, quantity = 1)
-    item = cart_items.find_or_initialize_by(product: product, product_variant: variant)
-    item.quantity = (item.quantity || 0) + quantity
-    item.save
+    item = cart_items.find_or_create_by!(product: product, product_variant: variant)
+    item.with_lock { item.increment!(:quantity, quantity) }
   end
 
   def remove_item(product, variant = nil)

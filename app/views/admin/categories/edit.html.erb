@@ -1,0 +1,51 @@
+<% content_for :page_title, "Edit Category" %>
+
+<div class="max-w-xl">
+  <%= link_to admin_categories_path, class: "inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 font-medium mb-6" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    Back to Categories
+  <% end %>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h2 class="font-bold text-slate-900 mb-5">Edit: <%= @category.name %></h2>
+
+    <%= form_with model: [:admin, @category], class: "space-y-5" do |f| %>
+      <% if @category.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+          <% @category.errors.full_messages.each do |msg| %><p>• <%= msg %></p><% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :name, "Category Name", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_field :name, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div>
+        <%= f.label :store_type, "Store Type", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.select :store_type,
+              [["All Stores", nil], ["Grocery", "grocery"], ["Pharmacy", "pharmacy"], ["Clothing", "clothing"]],
+              {},
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div>
+        <%= f.label :parent_id, "Parent Category (optional)", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.collection_select :parent_id, Category.root.ordered.where.not(id: @category.id), :id, :name,
+              { include_blank: "— Top-level category —" },
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div>
+        <%= f.label :position, "Position", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.number_field :position, min: 0,
+              class: "w-32 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <%= f.submit "Save Changes", class: "bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl cursor-pointer transition shadow-sm" %>
+        <%= link_to "Cancel", admin_categories_path, class: "text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-3" %>
+      </div>
+    <% end %>
+  </div>
+</div>

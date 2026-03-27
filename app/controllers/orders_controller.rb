@@ -27,17 +27,32 @@ class OrdersController < ApplicationController
       return
     end
 
-    # Group cart items by store (currently single-store checkout)
     store_id = @cart.cart_items.first.product.store_id
-    @store = Store.find(store_id)
+    @store = Store.verified.find_by(id: store_id)
+    unless @store
+      redirect_to cart_path, alert: "Store is no longer available."
+      return
+    end
+
+    address = nil
+    if params[:order][:address_id].present?
+      address = current_user.addresses.find_by(id: params[:order][:address_id])
+      unless address
+        flash[:alert] = "Invalid address selected."
+        @addresses = current_user.addresses.default_first
+        @order = Order.new
+        render :new, status: :unprocessable_entity
+        return
+      end
+    end
 
     @order = Order.new(
       user: current_user,
       store: @store,
-      address_id: params[:order][:address_id],
+      address: address,
       payment_method: params[:order][:payment_method] || "cash_on_delivery",
       notes: params[:order][:notes],
-      delivery_fee: 100, # Rs. 100 flat delivery fee
+      delivery_fee: 100,
       status: "pending"
     )
 
@@ -60,6 +75,7 @@ class OrdersController < ApplicationController
     redirect_to order_path(@order), notice: "Order placed successfully! Order ##{@order.order_number}"
   rescue ActiveRecord::RecordInvalid => e
     flash[:alert] = "Could not place order: #{e.message}"
+    @addresses = current_user.addresses.default_first
     render :new, status: :unprocessable_entity
   end
 

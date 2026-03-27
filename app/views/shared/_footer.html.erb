@@ -1,27 +1,57 @@
-<footer class="bg-green-900 text-green-200 mt-16">
-  <div class="max-w-7xl mx-auto px-4 py-10">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div>
-        <h3 class="text-white font-bold text-lg mb-3">🛒 BazaarPK</h3>
-        <p class="text-sm">Pakistan's local business marketplace. Connect with grocery stores, pharmacies, and clothing boutiques near you.</p>
+<footer class="bg-slate-900 text-slate-400 mt-16">
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+      <!-- Brand -->
+      <div class="md:col-span-1">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+          <span class="text-lg font-bold text-white">BazaarPK</span>
+        </div>
+        <p class="text-sm leading-relaxed">Pakistan's trusted local business marketplace. Shop from your neighborhood stores.</p>
       </div>
+
+      <!-- Marketplace -->
       <div>
-        <h4 class="text-white font-semibold mb-3">For Customers</h4>
-        <ul class="space-y-1 text-sm">
-          <li><%= link_to "Browse Stores", stores_path, class: "hover:text-white" %></li>
-          <li><%= link_to "My Orders", orders_path, class: "hover:text-white" %></li>
+        <h4 class="text-white font-semibold text-xs mb-3 uppercase tracking-wider">Marketplace</h4>
+        <ul class="space-y-2 text-sm">
+          <li><%= link_to "Browse Stores", stores_path, class: "hover:text-white transition" %></li>
+          <li><%= link_to "Grocery", stores_path(category: "grocery"), class: "hover:text-white transition" %></li>
+          <li><%= link_to "Pharmacy", stores_path(category: "pharmacy"), class: "hover:text-white transition" %></li>
+          <li><%= link_to "Clothing", stores_path(category: "clothing"), class: "hover:text-white transition" %></li>
         </ul>
       </div>
+
+      <!-- Vendors -->
       <div>
-        <h4 class="text-white font-semibold mb-3">For Store Owners</h4>
-        <ul class="space-y-1 text-sm">
-          <li><%= link_to "Register Your Store", new_user_registration_path(role: "vendor"), class: "hover:text-white" %></li>
-          <li><%= link_to "Pricing Plans", subscriptions_path, class: "hover:text-white" %></li>
+        <h4 class="text-white font-semibold text-xs mb-3 uppercase tracking-wider">For Vendors</h4>
+        <ul class="space-y-2 text-sm">
+          <li><%= link_to "Register Store", new_user_registration_path(role: "vendor"), class: "hover:text-white transition" %></li>
+          <li><%= link_to "Pricing Plans", subscriptions_path, class: "hover:text-white transition" %></li>
+          <% if user_signed_in? && current_user.vendor? %>
+            <li><%= link_to "My Dashboard", vendor_root_path, class: "hover:text-white transition" %></li>
+          <% end %>
+        </ul>
+      </div>
+
+      <!-- Account -->
+      <div>
+        <h4 class="text-white font-semibold text-xs mb-3 uppercase tracking-wider">Account</h4>
+        <ul class="space-y-2 text-sm">
+          <% if user_signed_in? %>
+            <li><%= link_to "My Orders", orders_path, class: "hover:text-white transition" %></li>
+            <li><%= link_to "Addresses", addresses_path, class: "hover:text-white transition" %></li>
+            <li><%= link_to "Account Settings", edit_user_registration_path, class: "hover:text-white transition" %></li>
+          <% else %>
+            <li><%= link_to "Sign In", new_user_session_path, class: "hover:text-white transition" %></li>
+            <li><%= link_to "Create Account", new_user_registration_path, class: "hover:text-white transition" %></li>
+          <% end %>
         </ul>
       </div>
     </div>
-    <div class="border-t border-green-800 mt-8 pt-4 text-center text-sm">
-      <p>&copy; <%= Date.current.year %> BazaarPK. All rights reserved. Made with ❤️ for Pakistan.</p>
+
+    <div class="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-slate-500">&copy; <%= Date.today.year %> BazaarPK. Made with love in Pakistan 🇵🇰</p>
+      <p class="text-xs text-slate-600">Supporting local businesses across Pakistan</p>
     </div>
   </div>
 </footer>
