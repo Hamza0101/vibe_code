@@ -1,0 +1,60 @@
+<% content_for :page_title, "New Plan" %>
+
+<div class="max-w-xl">
+  <%= link_to admin_subscription_plans_path, class: "inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 font-medium mb-6" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    Back to Plans
+  <% end %>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h2 class="font-bold text-slate-900 mb-5">New Subscription Plan</h2>
+
+    <%= form_with model: [:admin, @plan], class: "space-y-5" do |f| %>
+      <% if @plan.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+          <% @plan.errors.full_messages.each do |msg| %><p>• <%= msg %></p><% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :name, "Plan Name", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_field :name, placeholder: "e.g. Pro",
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div>
+        <%= f.label :price_pkr, "Price (PKR/month)", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold">Rs.</span>
+          <%= f.number_field :price_pkr, min: 0, step: 1, placeholder: "0 for free",
+                class: "w-full border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :product_limit, "Product Limit", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.number_field :product_limit, min: 1, placeholder: "Leave blank for unlimited",
+              class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        <p class="text-xs text-slate-400 mt-1">Leave blank for unlimited products</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Features</label>
+        <div class="grid grid-cols-2 gap-3">
+          <% %w[analytics featured sms bulk_import].each do |feat| %>
+            <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+              <input type="checkbox" name="subscription_plan[features][<%= feat %>]" value="true"
+                     class="w-4 h-4 accent-green-600">
+              <span class="text-sm font-medium text-slate-700"><%= feat.humanize %></span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <%= f.submit "Create Plan", class: "bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl cursor-pointer transition shadow-sm" %>
+        <%= link_to "Cancel", admin_subscription_plans_path, class: "text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-3" %>
+      </div>
+    <% end %>
+  </div>
+</div>

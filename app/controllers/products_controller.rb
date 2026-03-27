@@ -6,6 +6,7 @@ class ProductsController < ApplicationController
     @reviews = @product.reviews.approved.recent.includes(:user)
     @related_products = @store.products.published.in_stock
                                .where.not(id: @product.id)
+                               .includes(:store, :category)
                                .limit(4)
   end
 end

@@ -1,0 +1,80 @@
+<% content_for :page_title, "Edit Store" %>
+
+<div class="max-w-2xl">
+  <%= link_to admin_stores_path, class: "inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 font-medium mb-6" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    Back to Stores
+  <% end %>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h2 class="font-bold text-slate-900 mb-5">Edit: <%= @store.name %></h2>
+
+    <%= form_with model: [:admin, @store], class: "space-y-5" do |f| %>
+      <% if @store.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+          <% @store.errors.full_messages.each do |msg| %>
+            <p>• <%= msg %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :name, "Store Name", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.text_field :name, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+        <div>
+          <%= f.label :city, "City", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.text_field :city, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+        <div>
+          <%= f.label :category, "Category", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.select :category, [["Grocery", "grocery"], ["Pharmacy", "pharmacy"], ["Clothing", "clothing"]],
+                {}, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+        <div>
+          <%= f.label :phone, "Phone", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.text_field :phone, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+        <div class="col-span-2">
+          <%= f.label :subscription_plan_id, "Subscription Plan", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+          <%= f.collection_select :subscription_plan_id, SubscriptionPlan.by_price, :id, :name,
+                { include_blank: "— Free Plan —" },
+                class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :address, "Address", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_field :address, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+      </div>
+
+      <div>
+        <%= f.label :description, "Description", class: "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.text_area :description, rows: 3, class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" %>
+      </div>
+
+      <div class="flex gap-4">
+        <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 flex-1">
+          <%= f.check_box :verified, class: "w-4 h-4 accent-green-600" %>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">Verified</p>
+            <p class="text-xs text-slate-400">Show verified badge</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 flex-1">
+          <%= f.check_box :featured, class: "w-4 h-4 accent-amber-500" %>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">Featured</p>
+            <p class="text-xs text-slate-400">Show on homepage</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <%= f.submit "Save Changes", class: "bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl cursor-pointer transition shadow-sm" %>
+        <%= link_to "Cancel", admin_stores_path, class: "text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-3" %>
+      </div>
+    <% end %>
+  </div>
+</div>

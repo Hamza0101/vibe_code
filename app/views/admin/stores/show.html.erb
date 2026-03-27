@@ -1,0 +1,109 @@
+<% content_for :page_title, @store.name %>
+
+<div class="max-w-3xl space-y-5">
+  <!-- Back -->
+  <%= link_to admin_stores_path, class: "inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 font-medium mb-4" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    Back to Stores
+  <% end %>
+
+  <!-- Store card -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="h-32 bg-gradient-to-r from-green-600 to-emerald-600 relative">
+      <% if @store.banner.attached? %>
+        <%= image_tag @store.banner, class: "w-full h-full object-cover absolute inset-0" %>
+        <div class="absolute inset-0 bg-black/25"></div>
+      <% end %>
+    </div>
+    <div class="px-6 pb-6 -mt-6 relative">
+      <div class="w-12 h-12 rounded-xl border-4 border-white bg-white shadow-md flex items-center justify-center text-xl mb-3">
+        <%= @store.grocery? ? "🥦" : @store.pharmacy? ? "💊" : "👗" %>
+      </div>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900"><%= @store.name %></h2>
+          <div class="flex items-center gap-3 mt-1 flex-wrap text-sm text-slate-500">
+            <span><%= @store.city %></span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium"><%= @store.category.humanize %></span>
+            <span class="text-xs font-semibold <%= @store.verified? ? 'text-green-600' : 'text-amber-600' %>">
+              <%= @store.verified? ? "✓ Verified" : "⏳ Pending" %>
+            </span>
+          </div>
+          <% if @store.description.present? %>
+            <p class="text-slate-500 text-sm mt-3 leading-relaxed"><%= @store.description %></p>
+          <% end %>
+        </div>
+        <div class="flex gap-2">
+          <%= link_to edit_admin_store_path(@store), class: "bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition" do %>
+            Edit
+          <% end %>
+          <%= button_to verify_admin_store_path(@store), method: :patch,
+                class: "text-xs font-semibold px-4 py-2.5 rounded-xl transition cursor-pointer #{ @store.verified? ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' : 'bg-green-600 hover:bg-green-700 text-white' }" do %>
+            <%= @store.verified? ? "Revoke Verification" : "Verify Store" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details grid -->
+  <div class="grid grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Store Info</h3>
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Owner</dt>
+          <dd class="font-semibold text-slate-800"><%= @store.user.email %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Phone</dt>
+          <dd class="font-semibold text-slate-800"><%= @store.phone || "—" %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Address</dt>
+          <dd class="font-semibold text-slate-800 text-right max-w-40 truncate"><%= @store.address || "—" %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Plan</dt>
+          <dd class="font-semibold text-slate-800"><%= @store.subscription_plan&.name || "Free" %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Joined</dt>
+          <dd class="font-semibold text-slate-800"><%= @store.created_at.strftime("%b %d, %Y") %></dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Store Stats</h3>
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Products</dt>
+          <dd class="font-bold text-slate-900"><%= @store.products.count %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Published</dt>
+          <dd class="font-bold text-slate-900"><%= @store.products.published.count %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Total Orders</dt>
+          <dd class="font-bold text-slate-900"><%= @store.orders.count %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Featured</dt>
+          <dd class="font-bold text-slate-900"><%= @store.featured? ? "Yes" : "No" %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="bg-white rounded-2xl border border-red-200 shadow-sm p-5">
+    <h3 class="text-xs font-bold text-red-500 uppercase tracking-wide mb-3">Danger Zone</h3>
+    <%= button_to admin_store_path(@store), method: :delete,
+          class: "bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-sm px-5 py-2.5 rounded-xl transition border border-red-200",
+          data: { confirm: "Permanently delete #{@store.name}? This cannot be undone." } do %>
+      Delete This Store
+    <% end %>
+  </div>
+</div>

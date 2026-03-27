@@ -1,68 +1,108 @@
 <% content_for :title, @product.name %>
 
-<div class="max-w-5xl mx-auto px-4 py-8">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-xl shadow p-6">
-    <!-- Images -->
-    <div>
-      <% if @product.images.attached? %>
-        <%= image_tag @product.primary_image, class: "w-full rounded-lg object-cover max-h-80" %>
-        <% if @product.images.count > 1 %>
-          <div class="flex gap-2 mt-2 overflow-x-auto">
-            <% @product.images.each do |img| %>
-              <%= image_tag img, class: "h-16 w-16 object-cover rounded border" %>
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-slate-400 mb-6 flex items-center gap-2">
+    <%= link_to "Home", root_path, class: "hover:text-slate-600 transition" %>
+    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <%= link_to @store.name, store_path(@store), class: "hover:text-slate-600 transition" %>
+    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <span class="text-slate-600 font-medium"><%= @product.name %></span>
+  </nav>
+
+  <!-- Product Card -->
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <!-- Images -->
+      <div class="p-6 border-r border-slate-100">
+        <% if @product.images.attached? %>
+          <div class="rounded-xl overflow-hidden bg-slate-50 mb-3">
+            <%= image_tag @product.primary_image, class: "w-full object-cover max-h-96 rounded-xl" %>
+          </div>
+          <% if @product.images.count > 1 %>
+            <div class="flex gap-2 overflow-x-auto">
+              <% @product.images.each do |img| %>
+                <%= image_tag img, class: "h-16 w-16 object-cover rounded-xl border-2 border-slate-200 hover:border-green-400 cursor-pointer flex-shrink-0 transition" %>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="w-full h-72 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
+            <span class="text-8xl opacity-20">📦</span>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Details -->
+      <div class="p-8 flex flex-col">
+        <div class="flex-1">
+          <%= link_to @store.name, store_path(@store),
+                class: "inline-flex items-center gap-1 text-sm text-green-700 hover:text-green-800 font-medium mb-2" %>
+          <h1 class="text-2xl font-bold text-slate-900 leading-tight mb-1"><%= @product.name %></h1>
+
+          <% if @product.category %>
+            <span class="inline-block text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium mb-4"><%= @product.category.name %></span>
+          <% end %>
+
+          <div class="text-3xl font-bold text-green-700 mb-4">Rs. <%= number_with_delimiter(@product.price) %></div>
+
+          <% if @product.description.present? %>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6 border-t border-slate-100 pt-4"><%= @product.description %></p>
+          <% end %>
+
+          <!-- Stock indicator -->
+          <div class="flex items-center gap-2 mb-6">
+            <% if @product.in_stock? %>
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span class="text-sm text-green-700 font-medium">In Stock (<%= @product.stock %> available)</span>
+            <% else %>
+              <span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>
+              <span class="text-sm text-red-600 font-medium">Out of Stock</span>
             <% end %>
           </div>
-        <% end %>
-      <% else %>
-        <div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-          <span class="text-8xl text-gray-300">📦</span>
         </div>
-      <% end %>
-    </div>
 
-    <!-- Details -->
-    <div>
-      <p class="text-sm text-gray-500 mb-1">
-        <%= link_to @store.name, store_path(@store), class: "text-green-700 hover:underline" %>
-      </p>
-      <h1 class="text-2xl font-bold text-gray-800 mb-2"><%= @product.name %></h1>
-      <p class="text-3xl font-bold text-green-700 mb-4">Rs. <%= number_with_delimiter(@product.price) %></p>
-      <p class="text-gray-600 text-sm mb-4"><%= @product.description %></p>
+        <!-- Add to cart form -->
+        <%= form_with url: add_item_cart_path, method: :post, local: true do |f| %>
+          <%= hidden_field_tag :product_id, @product.id %>
 
-      <%= form_with url: add_item_cart_path, method: :post, local: true do |f| %>
-        <%= hidden_field_tag :product_id, @product.id %>
+          <% if @variants.any? %>
+            <div class="mb-4">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Select Option</label>
+              <%= select_tag :product_variant_id,
+                    options_for_select(@variants.map { |v| [v.display_name + " (+Rs. #{v.price_modifier})", v.id] }),
+                    class: "w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+            </div>
+          <% end %>
 
-        <% if @variants.any? %>
-          <div class="mb-4">
-            <%= label_tag :product_variant_id, "Select Option", class: "block text-sm font-medium text-gray-700 mb-1" %>
-            <%= select_tag :product_variant_id,
-                  options_for_select(@variants.map { |v| [v.display_name + " (+Rs. #{v.price_modifier})", v.id] }),
-                  class: "border rounded px-3 py-2 text-sm w-full" %>
+          <div class="mb-5">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Quantity</label>
+            <div class="flex items-center gap-3">
+              <%= number_field_tag :quantity, 1, min: 1, max: 99,
+                    class: "border border-slate-200 rounded-xl px-4 py-3 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-green-500 text-center font-semibold" %>
+            </div>
           </div>
-        <% end %>
 
-        <div class="flex items-center space-x-3 mb-4">
-          <%= label_tag :quantity, "Qty:", class: "text-sm font-medium" %>
-          <%= number_field_tag :quantity, 1, min: 1, max: 99,
-                class: "border rounded px-3 py-2 text-sm w-20" %>
-        </div>
-
-        <% if @product.in_stock? %>
-          <%= f.submit "🛒 Add to Cart",
-                class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg cursor-pointer" %>
-        <% else %>
-          <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-3 rounded-lg cursor-not-allowed">
-            Out of Stock
-          </button>
+          <% if @product.in_stock? %>
+            <%= f.submit "Add to Cart",
+                  class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl text-base cursor-pointer transition shadow-md" %>
+          <% else %>
+            <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-4 rounded-xl text-base cursor-not-allowed">
+              Out of Stock
+            </button>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
     </div>
   </div>
 
   <!-- Related products -->
   <% if @related_products.any? %>
-    <section class="mt-10">
-      <h2 class="text-xl font-bold mb-4">More from <%= @store.name %></h2>
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-bold text-slate-900">More from <%= @store.name %></h2>
+        <%= link_to "View all", store_path(@store), class: "text-sm text-green-700 hover:text-green-800 font-semibold" %>
+      </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <%= render partial: "product_card", collection: @related_products, as: :product %>
       </div>

@@ -1,38 +1,69 @@
 <% content_for :title, "Browse Stores" %>
 
-<div class="max-w-7xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Browse Stores</h1>
+<div class="max-w-7xl mx-auto px-4 py-10">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Browse Stores</h1>
+    <p class="text-slate-500 mt-1">Discover local businesses near you</p>
+  </div>
 
   <!-- Filters -->
-  <div class="bg-white rounded-xl shadow p-4 mb-6">
-    <%= form_with url: stores_path, method: :get, class: "flex flex-wrap gap-3 items-end" do |f| %>
-      <div>
-        <%= f.label :category, "Category", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.select :category, [["All", ""], ["Grocery", "grocery"], ["Pharmacy", "pharmacy"], ["Clothing", "clothing"]],
-              { selected: params[:category] }, class: "mt-1 border rounded px-3 py-2 text-sm" %>
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-8">
+    <%= form_with url: stores_path, method: :get, class: "flex flex-wrap gap-4 items-end" do |f| %>
+      <div class="flex-1 min-w-36">
+        <%= f.label :category, "Category", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.select :category,
+              [["All Categories", ""], ["🥦 Grocery", "grocery"], ["💊 Pharmacy", "pharmacy"], ["👗 Clothing", "clothing"]],
+              { selected: params[:category] },
+              class: "w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" %>
       </div>
-      <div>
-        <%= f.label :city, "City", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.select :city, [["All Cities", ""]] + @cities.map { |c| [c, c] },
-              { selected: params[:city] }, class: "mt-1 border rounded px-3 py-2 text-sm" %>
+      <div class="flex-1 min-w-36">
+        <%= f.label :city, "City", class: "block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5" %>
+        <%= f.select :city,
+              [["All Cities", ""]] + @cities.map { |c| [c, c] },
+              { selected: params[:city] },
+              class: "w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" %>
       </div>
-      <%= f.submit "Filter", class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm cursor-pointer" %>
-      <%= link_to "Clear", stores_path, class: "text-gray-500 hover:text-gray-700 text-sm px-2 py-2" %>
+      <div class="flex gap-2 pb-0.5">
+        <%= f.submit "Apply Filters", class: "bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition shadow-sm" %>
+        <%= link_to "Clear", stores_path, class: "text-slate-500 hover:text-slate-700 text-sm px-4 py-2.5 rounded-xl hover:bg-slate-100 transition font-medium" %>
+      </div>
     <% end %>
   </div>
 
+  <!-- Active filters -->
+  <% if params[:category].present? || params[:city].present? %>
+    <div class="flex items-center gap-2 mb-5 flex-wrap">
+      <span class="text-xs text-slate-500 font-medium">Filters:</span>
+      <% if params[:category].present? %>
+        <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+          <%= params[:category].humanize %>
+          <%= link_to stores_path(city: params[:city]), class: "ml-1 hover:text-green-900" do %>&times;<% end %>
+        </span>
+      <% end %>
+      <% if params[:city].present? %>
+        <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+          <%= params[:city] %>
+          <%= link_to stores_path(category: params[:category]), class: "ml-1 hover:text-blue-900" do %>&times;<% end %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+
   <!-- Store grid -->
   <% if @stores.any? %>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       <%= render partial: "store_card", collection: @stores, as: :store %>
     </div>
-    <div class="mt-6">
+    <div class="mt-8 flex justify-center">
       <%== pagy_nav(@pagy) %>
     </div>
   <% else %>
-    <div class="text-center py-16 text-gray-500">
-      <p class="text-5xl mb-4">🏪</p>
-      <p class="text-lg">No stores found. Try different filters.</p>
+    <div class="text-center py-24">
+      <div class="text-6xl mb-4">🏪</div>
+      <h3 class="text-xl font-semibold text-slate-700 mb-2">No stores found</h3>
+      <p class="text-slate-400 mb-6">Try different filters or browse all stores</p>
+      <%= link_to "Browse All Stores", stores_path, class: "bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition" %>
     </div>
   <% end %>
 </div>

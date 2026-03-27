@@ -17,6 +17,7 @@ class Store < ApplicationRecord
   validates :category, presence: true
   validates :city, presence: true
   validates :user_id, uniqueness: { message: "can only have one store" }
+  validates :phone, format: { with: /\A(\+92|0)\d{10}\z/, message: "must be a valid Pakistani number" }, allow_blank: true
 
   scope :verified, -> { where(verified: true) }
   scope :featured, -> { where(featured: true) }

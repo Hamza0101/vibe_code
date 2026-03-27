@@ -1,0 +1,105 @@
+<% content_for :page_title, "My Store" %>
+
+<div class="max-w-3xl space-y-5">
+  <!-- Store preview card -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="h-36 relative overflow-hidden bg-gradient-to-r from-green-600 to-emerald-600">
+      <% if @store.banner.attached? %>
+        <%= image_tag @store.banner, class: "w-full h-full object-cover absolute inset-0" %>
+        <div class="absolute inset-0 bg-black/20"></div>
+      <% end %>
+      <div class="absolute bottom-0 left-5 translate-y-1/2">
+        <% if @store.logo.attached? %>
+          <%= image_tag @store.logo, class: "w-14 h-14 rounded-xl border-4 border-white shadow-md object-cover" %>
+        <% else %>
+          <div class="w-14 h-14 rounded-xl border-4 border-white shadow-md bg-white flex items-center justify-center text-2xl">
+            <%= @store&.grocery? ? "🥦" : @store&.pharmacy? ? "💊" : "👗" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="pt-10 pb-5 px-5">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900"><%= @store&.name || "Your Store" %></h2>
+          <div class="flex items-center gap-3 mt-1 text-sm text-slate-500 flex-wrap">
+            <% if @store&.city.present? %>
+              <span class="flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                <%= @store.city %>
+              </span>
+            <% end %>
+            <% if @store&.category.present? %>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700"><%= @store.category.humanize %></span>
+            <% end %>
+            <% if @store&.verified? %>
+              <span class="flex items-center gap-1 text-green-600 text-xs font-semibold">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                Verified
+              </span>
+            <% else %>
+              <span class="text-amber-600 text-xs font-semibold">Pending verification</span>
+            <% end %>
+          </div>
+          <% if @store&.description.present? %>
+            <p class="text-slate-500 text-sm mt-3 leading-relaxed"><%= @store.description %></p>
+          <% end %>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <%= link_to edit_vendor_store_path, class: "flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm" do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            Edit Store
+          <% end %>
+          <% if @store&.id %>
+            <%= link_to store_path(@store), class: "flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              View Live
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Store stats -->
+  <div class="grid grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 text-center">
+      <p class="text-2xl font-black text-slate-900"><%= @store&.products&.published&.count || 0 %></p>
+      <p class="text-xs text-slate-500 font-medium mt-1">Products Listed</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 text-center">
+      <p class="text-2xl font-black text-slate-900"><%= @store&.orders&.count || 0 %></p>
+      <p class="text-xs text-slate-500 font-medium mt-1">Total Orders</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 text-center">
+      <p class="text-2xl font-black text-green-700">Rs. <%= number_with_delimiter(@store&.orders&.delivered&.sum(:total) || 0) %></p>
+      <p class="text-xs text-slate-500 font-medium mt-1">Revenue Earned</p>
+    </div>
+  </div>
+
+  <!-- Quick links -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <h3 class="font-bold text-slate-900 text-sm mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-2 gap-3">
+      <%= link_to new_vendor_product_path, class: "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-green-400 hover:bg-green-50 transition" do %>
+        <div class="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
+          <svg class="w-4 h-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-800">Add Product</p>
+          <p class="text-xs text-slate-400">List a new item</p>
+        </div>
+      <% end %>
+      <%= link_to vendor_orders_path, class: "flex items-center gap-3 p-4 border border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition" do %>
+        <div class="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+          <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-800">View Orders</p>
+          <p class="text-xs text-slate-400">Manage incoming orders</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

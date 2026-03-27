@@ -1,43 +1,63 @@
-<nav class="bg-green-700 text-white shadow-lg">
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <div class="flex items-center space-x-4">
-        <%= link_to root_path, class: "flex items-center space-x-2" do %>
-          <span class="text-2xl">🛒</span>
-          <span class="text-xl font-bold">BazaarPK</span>
+
+      <!-- Logo + Search -->
+      <div class="flex items-center gap-6 flex-1 min-w-0">
+        <%= link_to root_path, class: "flex items-center gap-2 flex-shrink-0" do %>
+          <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+          <span class="text-lg font-bold text-slate-900 tracking-tight">BazaarPK</span>
         <% end %>
 
-        <!-- Search -->
-        <%= form_with url: root_path, method: :get, class: "hidden md:flex items-center ml-4" do |f| %>
-          <%= f.text_field :q, placeholder: "Search stores or products...", class: "px-3 py-1 rounded-l text-gray-800 text-sm w-64 focus:outline-none", value: params[:q] %>
-          <%= f.submit "Search", class: "bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-1 rounded-r text-sm cursor-pointer" %>
+        <%= form_with url: root_path, method: :get, class: "hidden md:flex items-center ml-2 flex-1 max-w-md" do |f| %>
+          <div class="relative w-full">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+            <%= f.text_field :q, placeholder: "Search stores, products...",
+                  class: "w-full pl-9 pr-4 py-2 bg-slate-100 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:border-green-500 transition",
+                  value: params[:q] %>
+          </div>
         <% end %>
       </div>
 
       <!-- Nav links -->
-      <div class="flex items-center space-x-4">
-        <%= link_to "Stores", stores_path, class: "text-green-100 hover:text-white text-sm" %>
+      <div class="flex items-center gap-1 ml-4">
+        <%= link_to stores_path, class: "hidden sm:flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          Stores
+        <% end %>
 
         <!-- Cart -->
-        <%= link_to cart_path, class: "relative text-green-100 hover:text-white" do %>
-          <span class="text-xl">🛍️</span>
-          <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        <%= link_to cart_path, class: "relative flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-green-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none">
             <%= current_cart.item_count %>
           </span>
         <% end %>
 
         <% if user_signed_in? %>
           <% if current_user.vendor? %>
-            <%= link_to "Dashboard", vendor_root_path, class: "text-green-100 hover:text-white text-sm" %>
+            <%= link_to vendor_root_path, class: "hidden sm:flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+              Dashboard
+            <% end %>
           <% elsif current_user.admin? %>
-            <%= link_to "Admin", admin_root_path, class: "text-green-100 hover:text-white text-sm" %>
+            <%= link_to admin_root_path, class: "hidden sm:flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" do %>
+              Admin
+            <% end %>
           <% end %>
-          <%= button_to "Sign Out", destroy_user_session_path, method: :delete,
-                class: "text-green-100 hover:text-white text-sm bg-transparent border-0 cursor-pointer" %>
+          <%= button_to destroy_user_session_path, method: :delete,
+                class: "px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 transition" do %>
+            Sign Out
+          <% end %>
         <% else %>
-          <%= link_to "Sign In", new_user_session_path, class: "text-green-100 hover:text-white text-sm" %>
-          <%= link_to "Register Store", new_user_registration_path(role: "vendor"), class: "bg-yellow-500 hover:bg-yellow-400 text-white text-sm px-3 py-1 rounded" %>
+          <%= link_to "Sign In", new_user_session_path,
+                class: "px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" %>
+          <%= link_to "List Your Store", new_user_registration_path(role: "vendor"),
+                class: "px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition shadow-sm" %>
         <% end %>
       </div>
     </div>

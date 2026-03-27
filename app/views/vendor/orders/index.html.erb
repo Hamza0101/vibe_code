@@ -1,53 +1,68 @@
 <% content_for :page_title, "Orders" %>
 
-<!-- Status tabs -->
-<div class="flex space-x-2 mb-6 flex-wrap gap-2">
-  <%= link_to "All (#{@status_counts.values.sum})", vendor_orders_path,
-        class: "px-3 py-1 rounded-full text-sm #{params[:status].blank? ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}" %>
-  <% %w[pending confirmed processing shipped delivered cancelled].each do |status| %>
-    <%= link_to "#{status.humanize} (#{@status_counts[status] || 0})",
-          vendor_orders_path("q[status_eq]": status),
-          class: "px-3 py-1 rounded-full text-sm #{params.dig(:q, :status_eq) == status ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}" %>
+<!-- Status filter tabs -->
+<div class="flex items-center gap-2 mb-6 flex-wrap">
+  <%= link_to vendor_orders_path,
+        class: "px-4 py-2 rounded-xl text-sm font-semibold transition #{ params.dig(:q, :status_eq).blank? ? 'bg-green-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' }" do %>
+    All <span class="ml-1 opacity-75">(<%= @status_counts.values.sum %>)</span>
+  <% end %>
+  <% { "pending" => "amber", "confirmed" => "blue", "processing" => "indigo", "shipped" => "purple", "delivered" => "green", "cancelled" => "red" }.each do |status, color| %>
+    <%= link_to vendor_orders_path("q[status_eq]": status),
+          class: "px-4 py-2 rounded-xl text-sm font-semibold transition #{ params.dig(:q, :status_eq) == status ? 'bg-green-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' }" do %>
+      <%= status.humanize %> <span class="ml-1 opacity-75">(<%= @status_counts[status] || 0 %>)</span>
+    <% end %>
   <% end %>
 </div>
 
-<div class="bg-white rounded-xl shadow overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 border-b">
-      <tr>
-        <th class="px-4 py-3 text-left">Order #</th>
-        <th class="px-4 py-3 text-left">Customer</th>
-        <th class="px-4 py-3 text-left">Date</th>
-        <th class="px-4 py-3 text-left">Total</th>
-        <th class="px-4 py-3 text-left">Status</th>
-        <th class="px-4 py-3"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @orders.each do |order| %>
-        <tr class="border-b hover:bg-gray-50">
-          <td class="px-4 py-3 font-medium"><%= order.order_number %></td>
-          <td class="px-4 py-3 text-gray-600"><%= order.user.email %></td>
-          <td class="px-4 py-3 text-gray-500"><%= order.created_at.strftime("%b %d") %></td>
-          <td class="px-4 py-3 font-semibold">Rs. <%= number_with_delimiter(order.total) %></td>
-          <td class="px-4 py-3">
-            <span class="px-2 py-0.5 rounded-full text-xs
-              <%= order.pending? ? 'bg-yellow-100 text-yellow-700' :
-                  order.delivered? ? 'bg-green-100 text-green-700' :
-                  order.cancelled? ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' %>">
-              <%= order.status.humanize %>
-            </span>
-          </td>
-          <td class="px-4 py-3">
-            <%= link_to "Manage", vendor_order_path(order), class: "text-green-600 hover:underline" %>
-          </td>
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <% if @orders.any? %>
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Order</th>
+          <th class="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Customer</th>
+          <th class="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Date</th>
+          <th class="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Total</th>
+          <th class="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Status</th>
+          <th class="px-5 py-3.5"></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <% if @orders.empty? %>
-    <p class="text-center text-gray-500 py-8">No orders found.</p>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% @orders.each do |order| %>
+          <tr class="hover:bg-slate-50/50 transition">
+            <td class="px-5 py-4 font-bold text-slate-900">#<%= order.order_number %></td>
+            <td class="px-5 py-4 text-slate-600 text-sm truncate max-w-[150px]">
+              <%= order.user.name || order.user.email.split("@").first %>
+            </td>
+            <td class="px-5 py-4 text-slate-500 text-xs"><%= order.created_at.strftime("%b %d, %Y") %></td>
+            <td class="px-5 py-4 font-bold text-slate-900">Rs. <%= number_with_delimiter(order.total) %></td>
+            <td class="px-5 py-4">
+              <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
+                <%= order.pending? ? 'bg-amber-100 text-amber-700' :
+                    order.delivered? ? 'bg-green-100 text-green-700' :
+                    order.cancelled? ? 'bg-red-100 text-red-700' :
+                    order.confirmed? ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700' %>">
+                <%= order.status.humanize %>
+              </span>
+            </td>
+            <td class="px-5 py-4 text-right">
+              <%= link_to "Manage", vendor_order_path(order),
+                    class: "text-sm text-green-700 hover:text-green-800 font-semibold hover:underline" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="px-5 py-4 border-t border-slate-100"><%== pagy_nav(@pagy) %></div>
+  <% else %>
+    <div class="text-center py-20">
+      <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-slate-700 mb-1">No orders yet</h3>
+      <p class="text-slate-400 text-sm">Orders will appear here once customers start buying</p>
+    </div>
   <% end %>
 </div>
-
-<div class="mt-4"><%== pagy_nav(@pagy) %></div>

@@ -1,79 +1,131 @@
 <% content_for :title, "Order #{@order.order_number}" %>
 
-<div class="max-w-2xl mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">Order <%= @order.order_number %></h1>
-    <span class="px-3 py-1 rounded-full text-sm font-semibold
-      <%= @order.pending? ? 'bg-yellow-100 text-yellow-700' :
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Order #<%= @order.order_number %></h1>
+      <p class="text-slate-500 text-sm mt-1">Placed <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+    </div>
+    <span class="px-4 py-1.5 rounded-full text-sm font-bold
+      <%= @order.pending? ? 'bg-amber-100 text-amber-700' :
           @order.delivered? ? 'bg-green-100 text-green-700' :
           @order.cancelled? ? 'bg-red-100 text-red-700' :
-          'bg-blue-100 text-blue-700' %>">
+          @order.confirmed? ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700' %>">
       <%= @order.status.humanize %>
     </span>
   </div>
 
-  <div class="bg-white rounded-xl shadow p-6 mb-4">
-    <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+  <!-- Order progress -->
+  <% unless @order.cancelled? %>
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-5 shadow-sm">
+      <h2 class="font-semibold text-slate-700 text-sm mb-4">Order Status</h2>
+      <div class="flex items-center">
+        <% statuses = ["pending", "confirmed", "processing", "shipped", "delivered"] %>
+        <% current_idx = statuses.index(@order.status) || 0 %>
+        <% statuses.each_with_index do |status, idx| %>
+          <div class="flex items-center flex-1 last:flex-none">
+            <div class="flex flex-col items-center">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold
+                <%= idx <= current_idx ? 'bg-green-600 text-white' : 'bg-slate-200 text-slate-400' %>">
+                <% if idx < current_idx %>
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                <% else %>
+                  <%= idx + 1 %>
+                <% end %>
+              </div>
+              <span class="text-xs mt-1 font-medium hidden sm:block
+                <%= idx <= current_idx ? 'text-green-700' : 'text-slate-400' %>">
+                <%= status.humanize %>
+              </span>
+            </div>
+            <% unless idx == statuses.length - 1 %>
+              <div class="flex-1 h-0.5 mx-1 <%= idx < current_idx ? 'bg-green-500' : 'bg-slate-200' %>"></div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Order Details -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-5">
+    <h2 class="font-bold text-slate-900 mb-5">Order Details</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6 pb-6 border-b border-slate-100">
       <div>
-        <span class="text-gray-500">Store:</span>
-        <span class="font-medium ml-1"><%= @order.store.name %></span>
+        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Store</p>
+        <p class="text-sm font-semibold text-slate-800"><%= link_to @order.store.name, store_path(@order.store), class: "text-green-700 hover:text-green-800" %></p>
       </div>
       <div>
-        <span class="text-gray-500">Date:</span>
-        <span class="font-medium ml-1"><%= @order.created_at.strftime("%b %d, %Y") %></span>
+        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Payment</p>
+        <p class="text-sm font-semibold text-slate-800"><%= @order.payment_method.humanize %></p>
       </div>
       <div>
-        <span class="text-gray-500">Payment:</span>
-        <span class="font-medium ml-1"><%= @order.payment_method.humanize %></span>
+        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Delivery to</p>
+        <p class="text-sm font-semibold text-slate-800"><%= @order.address&.city || "N/A" %></p>
       </div>
       <div>
-        <span class="text-gray-500">Delivery to:</span>
-        <span class="font-medium ml-1"><%= @order.address&.city || "N/A" %></span>
+        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Date</p>
+        <p class="text-sm font-semibold text-slate-800"><%= @order.created_at.strftime("%b %d, %Y") %></p>
       </div>
     </div>
 
-    <table class="w-full border-t pt-4">
-      <thead>
-        <tr class="text-sm text-gray-500">
-          <th class="py-2 text-left">Item</th>
-          <th class="py-2 text-center">Qty</th>
-          <th class="py-2 text-right">Price</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @order_items.each do |item| %>
-          <tr class="border-t text-sm">
-            <td class="py-2">
-              <%= item.product.name %>
-              <% if item.product_variant %><span class="text-gray-400 text-xs"> (<%= item.product_variant.value %>)</span><% end %>
-            </td>
-            <td class="py-2 text-center"><%= item.quantity %></td>
-            <td class="py-2 text-right">Rs. <%= number_with_delimiter(item.line_total) %></td>
-          </tr>
-        <% end %>
-      </tbody>
-      <tfoot>
-        <tr class="border-t text-sm">
-          <td colspan="2" class="py-2 text-right text-gray-500">Subtotal:</td>
-          <td class="py-2 text-right">Rs. <%= number_with_delimiter(@order.subtotal) %></td>
-        </tr>
-        <tr class="text-sm">
-          <td colspan="2" class="py-1 text-right text-gray-500">Delivery:</td>
-          <td class="py-1 text-right">Rs. <%= number_with_delimiter(@order.delivery_fee) %></td>
-        </tr>
-        <tr class="font-bold">
-          <td colspan="2" class="py-2 text-right">Total:</td>
-          <td class="py-2 text-right text-green-700">Rs. <%= number_with_delimiter(@order.total) %></td>
-        </tr>
-      </tfoot>
-    </table>
+    <!-- Items -->
+    <div class="space-y-3 mb-6">
+      <% @order_items.each do |item| %>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-slate-100 rounded-xl flex-shrink-0 overflow-hidden">
+            <% if item.product.images.attached? %>
+              <%= image_tag item.product.primary_image, class: "w-full h-full object-cover" %>
+            <% else %>
+              <div class="w-full h-full flex items-center justify-center text-lg">📦</div>
+            <% end %>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-slate-800 truncate"><%= item.product.name %></p>
+            <% if item.product_variant %>
+              <p class="text-xs text-slate-400"><%= item.product_variant.value %></p>
+            <% end %>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-sm font-bold text-slate-900">Rs. <%= number_with_delimiter(item.line_total) %></p>
+            <p class="text-xs text-slate-400">× <%= item.quantity %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Totals -->
+    <div class="border-t border-slate-100 pt-4 space-y-2">
+      <div class="flex justify-between text-sm text-slate-500">
+        <span>Subtotal</span>
+        <span class="font-medium text-slate-700">Rs. <%= number_with_delimiter(@order.subtotal) %></span>
+      </div>
+      <div class="flex justify-between text-sm text-slate-500">
+        <span>Delivery</span>
+        <span class="font-medium text-slate-700">Rs. <%= number_with_delimiter(@order.delivery_fee) %></span>
+      </div>
+      <div class="flex justify-between font-bold text-base pt-2 border-t border-slate-100">
+        <span class="text-slate-900">Total</span>
+        <span class="text-green-700">Rs. <%= number_with_delimiter(@order.total) %></span>
+      </div>
+    </div>
   </div>
 
-  <% if @order.can_cancel? %>
-    <%= button_to "Cancel Order", cancel_order_path(@order), method: :patch,
-          class: "bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded text-sm",
-          data: { confirm: "Are you sure you want to cancel this order?" } %>
+  <% if @order.notes.present? %>
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5 text-sm text-amber-800">
+      <strong class="font-semibold">Order Notes:</strong> <%= @order.notes %>
+    </div>
   <% end %>
 
-  <%= link_to "← Back to My Orders", orders_path, class: "text-green-600 hover:text-green-700 text-sm ml-4" %>
+  <!-- Actions -->
+  <div class="flex items-center justify-between">
+    <%= link_to "← Back to Orders", orders_path, class: "text-sm text-slate-500 hover:text-slate-700 font-medium transition" %>
+    <% if @order.can_cancel? %>
+      <%= button_to "Cancel Order", cancel_order_path(@order), method: :patch,
+            class: "bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-5 py-2.5 rounded-xl text-sm transition",
+            data: { confirm: "Are you sure you want to cancel this order?" } %>
+    <% end %>
+  </div>
 </div>

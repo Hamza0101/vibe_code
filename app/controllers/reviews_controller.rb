@@ -3,7 +3,7 @@ class ReviewsController < ApplicationController
 
   def create
     reviewable = find_reviewable
-    @review = reviewable.reviews.build(review_params.merge(user: current_user, approved: true))
+    @review = reviewable.reviews.build(review_params.merge(user: current_user, approved: false))
 
     if @review.save
       redirect_back fallback_location: root_path, notice: "Review submitted."
