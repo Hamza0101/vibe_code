@@ -1,0 +1,88 @@
+<% content_for :page_title, "Dashboard" %>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">Total Products</p>
+    <p class="text-3xl font-bold text-gray-800 mt-1"><%= @total_products %></p>
+    <% if @product_limit %>
+      <p class="text-xs text-gray-400 mt-1"><%= @total_products %> / <%= @product_limit %> used</p>
+      <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+        <div class="bg-green-600 h-1.5 rounded-full" style="width: <%= [(@total_products.to_f / @product_limit * 100), 100].min %>%"></div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">Pending Orders</p>
+    <p class="text-3xl font-bold text-yellow-600 mt-1"><%= @pending_orders %></p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">This Month</p>
+    <p class="text-3xl font-bold text-green-700 mt-1">Rs. <%= number_with_delimiter(@revenue_this_month) %></p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">Total Revenue</p>
+    <p class="text-3xl font-bold text-gray-800 mt-1">Rs. <%= number_with_delimiter(@total_revenue) %></p>
+  </div>
+</div>
+
+<!-- Plan info -->
+<% if @plan %>
+  <div class="bg-<%= @plan.free? ? 'yellow' : 'green' %>-50 border border-<%= @plan.free? ? 'yellow' : 'green' %>-200 rounded-xl p-4 mb-8 flex items-center justify-between">
+    <div>
+      <p class="font-semibold"><%= @plan.name %> Plan</p>
+      <p class="text-sm text-gray-600"><%= @plan.free? ? 'Upgrade to list more products & get analytics.' : 'You are on a paid plan.' %></p>
+    </div>
+    <%= link_to "Manage Plan", subscriptions_path, class: "bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700" %>
+  </div>
+<% end %>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <!-- Recent Orders -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold">Recent Orders</h2>
+      <%= link_to "View all", vendor_orders_path, class: "text-green-600 text-sm hover:underline" %>
+    </div>
+    <% if @recent_orders.any? %>
+      <% @recent_orders.each do |order| %>
+        <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+          <div>
+            <p class="text-sm font-medium"><%= order.order_number %></p>
+            <p class="text-xs text-gray-500"><%= order.user.email %></p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs px-2 py-0.5 rounded-full
+              <%= order.pending? ? 'bg-yellow-100 text-yellow-700' :
+                  order.delivered? ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' %>">
+              <%= order.status.humanize %>
+            </span>
+            <p class="text-sm font-semibold">Rs. <%= number_with_delimiter(order.total) %></p>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-gray-500 text-sm text-center py-4">No orders yet.</p>
+    <% end %>
+  </div>
+
+  <!-- Low Stock -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold">⚠️ Low Stock Alert</h2>
+      <%= link_to "Manage Products", vendor_products_path, class: "text-green-600 text-sm hover:underline" %>
+    </div>
+    <% if @low_stock_products.any? %>
+      <% @low_stock_products.each do |product| %>
+        <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+          <p class="text-sm"><%= product.name %></p>
+          <span class="text-xs font-bold text-red-600"><%= product.stock %> left</span>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-gray-500 text-sm text-center py-4">All products well stocked!</p>
+    <% end %>
+  </div>
+</div>

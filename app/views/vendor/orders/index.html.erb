@@ -1,0 +1,53 @@
+<% content_for :page_title, "Orders" %>
+
+<!-- Status tabs -->
+<div class="flex space-x-2 mb-6 flex-wrap gap-2">
+  <%= link_to "All (#{@status_counts.values.sum})", vendor_orders_path,
+        class: "px-3 py-1 rounded-full text-sm #{params[:status].blank? ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}" %>
+  <% %w[pending confirmed processing shipped delivered cancelled].each do |status| %>
+    <%= link_to "#{status.humanize} (#{@status_counts[status] || 0})",
+          vendor_orders_path("q[status_eq]": status),
+          class: "px-3 py-1 rounded-full text-sm #{params.dig(:q, :status_eq) == status ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}" %>
+  <% end %>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b">
+      <tr>
+        <th class="px-4 py-3 text-left">Order #</th>
+        <th class="px-4 py-3 text-left">Customer</th>
+        <th class="px-4 py-3 text-left">Date</th>
+        <th class="px-4 py-3 text-left">Total</th>
+        <th class="px-4 py-3 text-left">Status</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium"><%= order.order_number %></td>
+          <td class="px-4 py-3 text-gray-600"><%= order.user.email %></td>
+          <td class="px-4 py-3 text-gray-500"><%= order.created_at.strftime("%b %d") %></td>
+          <td class="px-4 py-3 font-semibold">Rs. <%= number_with_delimiter(order.total) %></td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs
+              <%= order.pending? ? 'bg-yellow-100 text-yellow-700' :
+                  order.delivered? ? 'bg-green-100 text-green-700' :
+                  order.cancelled? ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' %>">
+              <%= order.status.humanize %>
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <%= link_to "Manage", vendor_order_path(order), class: "text-green-600 hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @orders.empty? %>
+    <p class="text-center text-gray-500 py-8">No orders found.</p>
+  <% end %>
+</div>
+
+<div class="mt-4"><%== pagy_nav(@pagy) %></div>

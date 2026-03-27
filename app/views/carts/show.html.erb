@@ -1,0 +1,74 @@
+<% content_for :title, "Your Cart" %>
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Your Cart 🛒</h1>
+
+  <% if @cart.empty? %>
+    <div class="bg-white rounded-xl shadow p-12 text-center text-gray-500">
+      <p class="text-5xl mb-4">🛍️</p>
+      <p class="text-lg mb-4">Your cart is empty.</p>
+      <%= link_to "Browse Stores", stores_path, class: "bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700" %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-6">
+      <table class="w-full">
+        <thead class="bg-gray-50 border-b">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Product</th>
+            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Qty</th>
+            <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Price</th>
+            <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Subtotal</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @cart_items.each do |item| %>
+            <tr class="border-b">
+              <td class="px-4 py-3">
+                <div class="font-medium text-sm"><%= item.product.name %></div>
+                <% if item.product_variant %>
+                  <div class="text-xs text-gray-500"><%= item.product_variant.display_name %></div>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <%= form_with url: update_item_cart_path, method: :patch, class: "inline-flex items-center" do |f| %>
+                  <%= hidden_field_tag :cart_item_id, item.id %>
+                  <%= number_field_tag :quantity, item.quantity, min: 0, max: 99,
+                        class: "border rounded w-16 text-center text-sm py-1",
+                        onchange: "this.form.submit()" %>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 text-right text-sm">Rs. <%= number_with_delimiter(item.unit_price) %></td>
+              <td class="px-4 py-3 text-right text-sm font-semibold">Rs. <%= number_with_delimiter(item.subtotal) %></td>
+              <td class="px-4 py-3 text-right">
+                <%= button_to "✕", remove_item_cart_path, method: :delete,
+                      params: { product_id: item.product_id, product_variant_id: item.product_variant_id },
+                      class: "text-red-500 hover:text-red-700 text-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot>
+          <tr class="bg-gray-50">
+            <td colspan="3" class="px-4 py-3 text-right font-semibold">Total:</td>
+            <td class="px-4 py-3 text-right font-bold text-green-700 text-lg">
+              Rs. <%= number_with_delimiter(@cart.total) %>
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="flex justify-between items-center">
+      <%= link_to "← Continue Shopping", stores_path, class: "text-green-600 hover:text-green-700" %>
+      <% if user_signed_in? %>
+        <%= link_to "Proceed to Checkout →", new_order_path,
+              class: "bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg" %>
+      <% else %>
+        <%= link_to "Sign in to Checkout →", new_user_session_path,
+              class: "bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,55 @@
+<% content_for :page_title, "Stores" %>
+
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-gray-700 font-semibold"><%= @stores.total_count rescue @stores.size %> Stores</h2>
+  <%= form_with url: admin_stores_path, method: :get, class: "flex gap-2" do |f| %>
+    <%= f.text_field :q, placeholder: "Search stores...", value: params[:q],
+          class: "border rounded px-3 py-1.5 text-sm" %>
+    <%= f.submit "Search", class: "bg-gray-700 text-white px-3 py-1.5 rounded text-sm cursor-pointer" %>
+  <% end %>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b">
+      <tr>
+        <th class="px-4 py-3 text-left">Store</th>
+        <th class="px-4 py-3 text-left">Owner</th>
+        <th class="px-4 py-3 text-left">Category</th>
+        <th class="px-4 py-3 text-left">Plan</th>
+        <th class="px-4 py-3 text-left">Status</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @stores.each do |store| %>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <p class="font-medium"><%= store.name %></p>
+            <p class="text-xs text-gray-400"><%= store.city %></p>
+          </td>
+          <td class="px-4 py-3 text-gray-600 text-xs"><%= store.user.email %></td>
+          <td class="px-4 py-3"><%= store.category.humanize %></td>
+          <td class="px-4 py-3 text-xs"><%= store.subscription_plan&.name || "Free" %></td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs <%= store.verified? ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+              <%= store.verified? ? "Verified" : "Pending" %>
+            </span>
+            <% if store.featured? %>
+              <span class="ml-1 text-yellow-500 text-xs">⭐ Featured</span>
+            <% end %>
+          </td>
+          <td class="px-4 py-3 text-right space-x-2">
+            <%= button_to store.verified? ? "Unverify" : "Verify", verify_admin_store_path(store), method: :patch,
+                  class: "text-xs #{store.verified? ? 'text-red-600' : 'text-green-600'} hover:underline" %>
+            <%= button_to store.featured? ? "Unfeature" : "Feature", toggle_featured_admin_store_path(store), method: :patch,
+                  class: "text-xs text-blue-600 hover:underline" %>
+            <%= link_to "Edit", edit_admin_store_path(store), class: "text-xs text-gray-600 hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-4"><%== pagy_nav(@pagy) %></div>

@@ -1,0 +1,28 @@
+<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
+  <%= link_to product_path(product) do %>
+    <div class="h-36 bg-gray-100 flex items-center justify-center overflow-hidden">
+      <% if product.images.attached? %>
+        <%= image_tag product.primary_image, class: "h-full w-full object-cover" %>
+      <% else %>
+        <span class="text-4xl text-gray-300">📦</span>
+      <% end %>
+    </div>
+    <div class="p-3">
+      <h3 class="font-medium text-gray-800 text-sm line-clamp-2"><%= product.name %></h3>
+      <p class="text-xs text-gray-500 mt-0.5"><%= product.store.name %></p>
+      <div class="flex items-center justify-between mt-2">
+        <span class="font-bold text-green-700">Rs. <%= number_with_delimiter(product.price) %></span>
+        <% unless product.in_stock? %>
+          <span class="text-xs text-red-500">Out of stock</span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <div class="px-3 pb-3">
+    <%= button_to add_item_cart_path, method: :post, params: { product_id: product.id },
+          class: "w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1.5 rounded font-medium",
+          disabled: !product.in_stock? do %>
+      🛒 Add to Cart
+    <% end %>
+  </div>
+</div>
