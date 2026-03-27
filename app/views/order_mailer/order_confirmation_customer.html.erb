@@ -1,0 +1,5 @@
+<h2>Order Confirmed!</h2>
+<p>Hi <%= @customer.name || @customer.email %>,</p>
+<p>Your order <strong>#<%= @order.order_number %></strong> from <strong><%= @order.store.name %></strong> has been placed.</p>
+<p><strong>Total:</strong> Rs. <%= number_with_delimiter(@order.total) %></p>
+<p><strong>Payment:</strong> <%= @order.payment_method.humanize %></p>

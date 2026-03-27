@@ -1,0 +1,79 @@
+<% content_for :title, "Order #{@order.order_number}" %>
+
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Order <%= @order.order_number %></h1>
+    <span class="px-3 py-1 rounded-full text-sm font-semibold
+      <%= @order.pending? ? 'bg-yellow-100 text-yellow-700' :
+          @order.delivered? ? 'bg-green-100 text-green-700' :
+          @order.cancelled? ? 'bg-red-100 text-red-700' :
+          'bg-blue-100 text-blue-700' %>">
+      <%= @order.status.humanize %>
+    </span>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6 mb-4">
+    <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+      <div>
+        <span class="text-gray-500">Store:</span>
+        <span class="font-medium ml-1"><%= @order.store.name %></span>
+      </div>
+      <div>
+        <span class="text-gray-500">Date:</span>
+        <span class="font-medium ml-1"><%= @order.created_at.strftime("%b %d, %Y") %></span>
+      </div>
+      <div>
+        <span class="text-gray-500">Payment:</span>
+        <span class="font-medium ml-1"><%= @order.payment_method.humanize %></span>
+      </div>
+      <div>
+        <span class="text-gray-500">Delivery to:</span>
+        <span class="font-medium ml-1"><%= @order.address&.city || "N/A" %></span>
+      </div>
+    </div>
+
+    <table class="w-full border-t pt-4">
+      <thead>
+        <tr class="text-sm text-gray-500">
+          <th class="py-2 text-left">Item</th>
+          <th class="py-2 text-center">Qty</th>
+          <th class="py-2 text-right">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @order_items.each do |item| %>
+          <tr class="border-t text-sm">
+            <td class="py-2">
+              <%= item.product.name %>
+              <% if item.product_variant %><span class="text-gray-400 text-xs"> (<%= item.product_variant.value %>)</span><% end %>
+            </td>
+            <td class="py-2 text-center"><%= item.quantity %></td>
+            <td class="py-2 text-right">Rs. <%= number_with_delimiter(item.line_total) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr class="border-t text-sm">
+          <td colspan="2" class="py-2 text-right text-gray-500">Subtotal:</td>
+          <td class="py-2 text-right">Rs. <%= number_with_delimiter(@order.subtotal) %></td>
+        </tr>
+        <tr class="text-sm">
+          <td colspan="2" class="py-1 text-right text-gray-500">Delivery:</td>
+          <td class="py-1 text-right">Rs. <%= number_with_delimiter(@order.delivery_fee) %></td>
+        </tr>
+        <tr class="font-bold">
+          <td colspan="2" class="py-2 text-right">Total:</td>
+          <td class="py-2 text-right text-green-700">Rs. <%= number_with_delimiter(@order.total) %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <% if @order.can_cancel? %>
+    <%= button_to "Cancel Order", cancel_order_path(@order), method: :patch,
+          class: "bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded text-sm",
+          data: { confirm: "Are you sure you want to cancel this order?" } %>
+  <% end %>
+
+  <%= link_to "← Back to My Orders", orders_path, class: "text-green-600 hover:text-green-700 text-sm ml-4" %>
+</div>

@@ -1,0 +1,61 @@
+<% content_for :page_title, "Edit Product" %>
+<div class="max-w-2xl">
+  <div class="bg-white rounded-xl shadow p-6 mb-6">
+    <%= render "form", product: @product %>
+  </div>
+
+  <!-- Variants -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-semibold">Product Variants (size, color, etc.)</h3>
+    </div>
+
+    <% if @product.product_variants.any? %>
+      <table class="w-full text-sm mb-4">
+        <thead class="text-gray-500 border-b">
+          <tr>
+            <th class="py-2 text-left">Type</th>
+            <th class="py-2 text-left">Value</th>
+            <th class="py-2 text-left">Price Modifier</th>
+            <th class="py-2 text-left">Stock</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @product.product_variants.each do |variant| %>
+            <tr class="border-b">
+              <td class="py-2"><%= variant.name %></td>
+              <td class="py-2"><%= variant.value %></td>
+              <td class="py-2">+Rs. <%= variant.price_modifier %></td>
+              <td class="py-2"><%= variant.stock || "∞" %></td>
+              <td class="py-2 text-right">
+                <%= button_to "Remove", vendor_variant_path(variant), method: :delete,
+                      class: "text-red-500 hover:underline text-xs" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <%= form_with url: vendor_product_variants_path(@product), method: :post, class: "flex gap-2 flex-wrap items-end" do |f| %>
+      <div>
+        <label class="block text-xs text-gray-600 mb-1">Type (e.g. Size)</label>
+        <%= text_field_tag "product_variant[name]", "", placeholder: "Size", class: "border rounded px-2 py-1 text-sm w-24" %>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-600 mb-1">Value (e.g. XL)</label>
+        <%= text_field_tag "product_variant[value]", "", placeholder: "XL", class: "border rounded px-2 py-1 text-sm w-20" %>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-600 mb-1">Price +Rs.</label>
+        <%= number_field_tag "product_variant[price_modifier]", 0, step: 1, class: "border rounded px-2 py-1 text-sm w-20" %>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-600 mb-1">Stock</label>
+        <%= number_field_tag "product_variant[stock]", nil, min: 0, placeholder: "∞", class: "border rounded px-2 py-1 text-sm w-16" %>
+      </div>
+      <%= submit_tag "+ Add Variant", class: "bg-blue-600 text-white px-3 py-1.5 rounded text-sm cursor-pointer" %>
+    <% end %>
+  </div>
+</div>

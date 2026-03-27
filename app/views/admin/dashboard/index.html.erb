@@ -1,0 +1,59 @@
+<% content_for :page_title, "Platform Overview" %>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">Total Stores</p>
+    <p class="text-3xl font-bold mt-1"><%= @total_stores %></p>
+    <p class="text-xs text-gray-400 mt-1"><%= @verified_stores %> verified</p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">Total Users</p>
+    <p class="text-3xl font-bold mt-1"><%= @total_users %></p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">Orders Today</p>
+    <p class="text-3xl font-bold text-blue-600 mt-1"><%= @orders_today %></p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500">MRR (PKR)</p>
+    <p class="text-3xl font-bold text-green-700 mt-1">Rs. <%= number_with_delimiter(@mrr) %></p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="font-semibold mb-4">Recent Stores</h2>
+    <% @recent_stores.each do |store| %>
+      <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+        <div>
+          <p class="text-sm font-medium"><%= store.name %></p>
+          <p class="text-xs text-gray-400"><%= store.user.email %> · <%= store.city %></p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <% unless store.verified? %>
+            <%= button_to "Verify", verify_admin_store_path(store), method: :patch,
+                  class: "text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200" %>
+          <% else %>
+            <span class="text-xs text-green-600">✓ Verified</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="font-semibold mb-4">Recent Orders</h2>
+    <% @recent_orders.each do |order| %>
+      <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+        <div>
+          <p class="text-sm font-medium"><%= order.order_number %></p>
+          <p class="text-xs text-gray-400"><%= order.user.email %> → <%= order.store.name %></p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-semibold">Rs. <%= number_with_delimiter(order.total) %></p>
+          <span class="text-xs text-gray-400"><%= order.status.humanize %></span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

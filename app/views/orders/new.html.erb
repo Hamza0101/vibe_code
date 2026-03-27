@@ -1,0 +1,71 @@
+<% content_for :title, "Checkout" %>
+
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Checkout</h1>
+
+  <!-- Cart summary -->
+  <div class="bg-white rounded-xl shadow p-4 mb-6">
+    <h2 class="font-semibold mb-3">Order Summary</h2>
+    <% @cart.cart_items.includes(:product, :product_variant).each do |item| %>
+      <div class="flex justify-between text-sm py-1">
+        <span><%= item.product.name %> <% if item.product_variant %> (<%= item.product_variant.value %>)<% end %> × <%= item.quantity %></span>
+        <span>Rs. <%= number_with_delimiter(item.subtotal) %></span>
+      </div>
+    <% end %>
+    <div class="border-t mt-2 pt-2 flex justify-between font-semibold">
+      <span>Delivery fee:</span><span>Rs. 100</span>
+    </div>
+    <div class="flex justify-between font-bold text-green-700 text-lg mt-1">
+      <span>Total:</span><span>Rs. <%= number_with_delimiter(@cart.total + 100) %></span>
+    </div>
+  </div>
+
+  <%= form_with url: orders_path, method: :post do |f| %>
+    <!-- Delivery Address -->
+    <div class="bg-white rounded-xl shadow p-4 mb-4">
+      <h2 class="font-semibold mb-3">Delivery Address</h2>
+      <% if @addresses.any? %>
+        <% @addresses.each do |address| %>
+          <label class="flex items-start space-x-3 mb-3 cursor-pointer">
+            <%= radio_button_tag "order[address_id]", address.id, address.is_default?, class: "mt-1" %>
+            <span class="text-sm text-gray-700"><%= address.full_address %></span>
+          </label>
+        <% end %>
+        <%= link_to "+ Add new address", new_address_path, class: "text-green-600 text-sm hover:underline" %>
+      <% else %>
+        <p class="text-sm text-gray-500 mb-2">No addresses saved yet.</p>
+        <%= link_to "Add a delivery address first", new_address_path,
+              class: "bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700" %>
+      <% end %>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="bg-white rounded-xl shadow p-4 mb-6">
+      <h2 class="font-semibold mb-3">Payment Method</h2>
+      <label class="flex items-center space-x-3 mb-2 cursor-pointer">
+        <%= radio_button_tag "order[payment_method]", "cash_on_delivery", true %>
+        <span class="text-sm">Cash on Delivery (COD)</span>
+      </label>
+      <label class="flex items-center space-x-3 mb-2 cursor-pointer">
+        <%= radio_button_tag "order[payment_method]", "jazzcash" %>
+        <span class="text-sm">JazzCash</span>
+      </label>
+      <label class="flex items-center space-x-3 cursor-pointer">
+        <%= radio_button_tag "order[payment_method]", "easypaisa" %>
+        <span class="text-sm">EasyPaisa</span>
+      </label>
+    </div>
+
+    <!-- Notes -->
+    <div class="mb-4">
+      <%= label_tag "order[notes]", "Order Notes (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= text_area_tag "order[notes]", "", placeholder: "Any special instructions...",
+            class: "w-full border rounded px-3 py-2 text-sm", rows: 2 %>
+    </div>
+
+    <% if @addresses.any? %>
+      <%= f.submit "Place Order →",
+            class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg cursor-pointer" %>
+    <% end %>
+  <% end %>
+</div>
