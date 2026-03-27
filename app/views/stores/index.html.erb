@@ -1,0 +1,38 @@
+<% content_for :title, "Browse Stores" %>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Browse Stores</h1>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl shadow p-4 mb-6">
+    <%= form_with url: stores_path, method: :get, class: "flex flex-wrap gap-3 items-end" do |f| %>
+      <div>
+        <%= f.label :category, "Category", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :category, [["All", ""], ["Grocery", "grocery"], ["Pharmacy", "pharmacy"], ["Clothing", "clothing"]],
+              { selected: params[:category] }, class: "mt-1 border rounded px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :city, "City", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :city, [["All Cities", ""]] + @cities.map { |c| [c, c] },
+              { selected: params[:city] }, class: "mt-1 border rounded px-3 py-2 text-sm" %>
+      </div>
+      <%= f.submit "Filter", class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm cursor-pointer" %>
+      <%= link_to "Clear", stores_path, class: "text-gray-500 hover:text-gray-700 text-sm px-2 py-2" %>
+    <% end %>
+  </div>
+
+  <!-- Store grid -->
+  <% if @stores.any? %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <%= render partial: "store_card", collection: @stores, as: :store %>
+    </div>
+    <div class="mt-6">
+      <%== pagy_nav(@pagy) %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 text-gray-500">
+      <p class="text-5xl mb-4">🏪</p>
+      <p class="text-lg">No stores found. Try different filters.</p>
+    </div>
+  <% end %>
+</div>

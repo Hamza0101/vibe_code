@@ -1,0 +1,52 @@
+<% content_for :title, "Sign In" %>
+
+<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+  <div class="max-w-md w-full bg-white rounded-xl shadow-md p-8">
+    <div class="text-center mb-6">
+      <span class="text-4xl">🛒</span>
+      <h2 class="text-2xl font-bold mt-2">Sign in to BazaarPK</h2>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="space-y-4">
+        <div>
+          <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                class: "w-full border rounded-lg px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500" %>
+        </div>
+
+        <div>
+          <%= f.label :password, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.password_field :password, autocomplete: "current-password",
+                class: "w-full border rounded-lg px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500" %>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-sm text-gray-600">
+              <%= f.check_box :remember_me %>
+              <span>Remember me</span>
+            </label>
+            <%= link_to "Forgot password?", new_user_password_path, class: "text-green-600 text-sm hover:underline" %>
+          </div>
+        <% end %>
+
+        <%= f.submit "Sign In", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg cursor-pointer" %>
+      </div>
+    <% end %>
+
+    <div class="text-center mt-4 space-y-2 text-sm text-gray-500">
+      <p>New customer? <%= link_to "Create an account", new_user_registration_path, class: "text-green-600 hover:underline" %></p>
+      <p>Own a store? <%= link_to "Register your store free", new_user_registration_path(role: "vendor"), class: "text-green-600 hover:underline" %></p>
+    </div>
+
+    <% if Rails.env.development? %>
+      <div class="mt-6 bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
+        <p class="font-semibold mb-1">Dev test accounts:</p>
+        <p>Admin: admin@bazaarpk.com / admin123456</p>
+        <p>Vendor: vendor@test.com / password123</p>
+        <p>Customer: customer@test.com / password123</p>
+      </div>
+    <% end %>
+  </div>
+</div>

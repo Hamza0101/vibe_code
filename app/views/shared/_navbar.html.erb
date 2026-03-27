@@ -1,0 +1,45 @@
+<nav class="bg-green-700 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-4">
+        <%= link_to root_path, class: "flex items-center space-x-2" do %>
+          <span class="text-2xl">🛒</span>
+          <span class="text-xl font-bold">BazaarPK</span>
+        <% end %>
+
+        <!-- Search -->
+        <%= form_with url: root_path, method: :get, class: "hidden md:flex items-center ml-4" do |f| %>
+          <%= f.text_field :q, placeholder: "Search stores or products...", class: "px-3 py-1 rounded-l text-gray-800 text-sm w-64 focus:outline-none", value: params[:q] %>
+          <%= f.submit "Search", class: "bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-1 rounded-r text-sm cursor-pointer" %>
+        <% end %>
+      </div>
+
+      <!-- Nav links -->
+      <div class="flex items-center space-x-4">
+        <%= link_to "Stores", stores_path, class: "text-green-100 hover:text-white text-sm" %>
+
+        <!-- Cart -->
+        <%= link_to cart_path, class: "relative text-green-100 hover:text-white" do %>
+          <span class="text-xl">🛍️</span>
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <%= current_cart.item_count %>
+          </span>
+        <% end %>
+
+        <% if user_signed_in? %>
+          <% if current_user.vendor? %>
+            <%= link_to "Dashboard", vendor_root_path, class: "text-green-100 hover:text-white text-sm" %>
+          <% elsif current_user.admin? %>
+            <%= link_to "Admin", admin_root_path, class: "text-green-100 hover:text-white text-sm" %>
+          <% end %>
+          <%= button_to "Sign Out", destroy_user_session_path, method: :delete,
+                class: "text-green-100 hover:text-white text-sm bg-transparent border-0 cursor-pointer" %>
+        <% else %>
+          <%= link_to "Sign In", new_user_session_path, class: "text-green-100 hover:text-white text-sm" %>
+          <%= link_to "Register Store", new_user_registration_path(role: "vendor"), class: "bg-yellow-500 hover:bg-yellow-400 text-white text-sm px-3 py-1 rounded" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>

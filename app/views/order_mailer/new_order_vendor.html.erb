@@ -1,0 +1,5 @@
+<h2>New Order Received!</h2>
+<p>You have a new order from <%= @order.user.email %>.</p>
+<p><strong>Order #:</strong> <%= @order.order_number %></p>
+<p><strong>Total:</strong> Rs. <%= number_with_delimiter(@order.total) %></p>
+<p>Please log in to your vendor dashboard to process this order.</p>

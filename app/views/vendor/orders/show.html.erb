@@ -1,0 +1,56 @@
+<% content_for :page_title, "Order #{@order.order_number}" %>
+
+<div class="max-w-2xl">
+  <div class="bg-white rounded-xl shadow p-6 mb-4">
+    <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+      <div><span class="text-gray-500">Customer:</span> <strong><%= @order.user.email %></strong></div>
+      <div><span class="text-gray-500">Phone:</span> <strong><%= @order.user.phone || "N/A" %></strong></div>
+      <div><span class="text-gray-500">Payment:</span> <strong><%= @order.payment_method.humanize %></strong></div>
+      <div><span class="text-gray-500">Address:</span> <strong><%= @order.address&.full_address || "N/A" %></strong></div>
+      <% if @order.notes.present? %>
+        <div class="col-span-2"><span class="text-gray-500">Notes:</span> <%= @order.notes %></div>
+      <% end %>
+    </div>
+
+    <table class="w-full text-sm border-t">
+      <thead class="text-gray-500 border-b">
+        <tr>
+          <th class="py-2 text-left">Item</th>
+          <th class="py-2 text-center">Qty</th>
+          <th class="py-2 text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @order_items.each do |item| %>
+          <tr class="border-b">
+            <td class="py-2"><%= item.product.name %> <%= item.variant_display.present? ? "(#{item.variant_display})" : "" %></td>
+            <td class="py-2 text-center"><%= item.quantity %></td>
+            <td class="py-2 text-right">Rs. <%= number_with_delimiter(item.line_total) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr class="font-bold">
+          <td colspan="2" class="py-2 text-right">Total:</td>
+          <td class="py-2 text-right text-green-700">Rs. <%= number_with_delimiter(@order.total) %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Update status -->
+  <% unless @order.cancelled? || @order.delivered? %>
+    <div class="bg-white rounded-xl shadow p-6">
+      <h3 class="font-semibold mb-3">Update Order Status</h3>
+      <%= form_with url: vendor_order_path(@order), method: :patch do |f| %>
+        <div class="flex items-center gap-3">
+          <%= f.select :status,
+                Order.statuses.keys.map { |s| [s.humanize, s] },
+                { selected: @order.status },
+                class: "border rounded px-3 py-2 text-sm" %>
+          <%= f.submit "Update", class: "bg-green-600 text-white px-4 py-2 rounded text-sm cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

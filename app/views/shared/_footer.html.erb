@@ -1,0 +1,27 @@
+<footer class="bg-green-900 text-green-200 mt-16">
+  <div class="max-w-7xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-white font-bold text-lg mb-3">🛒 BazaarPK</h3>
+        <p class="text-sm">Pakistan's local business marketplace. Connect with grocery stores, pharmacies, and clothing boutiques near you.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-3">For Customers</h4>
+        <ul class="space-y-1 text-sm">
+          <li><%= link_to "Browse Stores", stores_path, class: "hover:text-white" %></li>
+          <li><%= link_to "My Orders", orders_path, class: "hover:text-white" %></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-3">For Store Owners</h4>
+        <ul class="space-y-1 text-sm">
+          <li><%= link_to "Register Your Store", new_user_registration_path(role: "vendor"), class: "hover:text-white" %></li>
+          <li><%= link_to "Pricing Plans", subscriptions_path, class: "hover:text-white" %></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-green-800 mt-8 pt-4 text-center text-sm">
+      <p>&copy; <%= Date.current.year %> BazaarPK. All rights reserved. Made with ❤️ for Pakistan.</p>
+    </div>
+  </div>
+</footer>
