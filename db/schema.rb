@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_26_141336) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_30_091738) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -111,7 +111,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_141336) do
   end
 
   create_table "orders", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.bigint "store_id", null: false
     t.bigint "address_id"
     t.string "status"
@@ -122,7 +122,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_141336) do
     t.string "payment_method"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sale_channel", default: "online", null: false
+    t.string "pos_customer_name"
+    t.string "pos_customer_phone"
     t.index ["address_id"], name: "index_orders_on_address_id"
+    t.index ["sale_channel"], name: "index_orders_on_sale_channel"
     t.index ["store_id"], name: "index_orders_on_store_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end

@@ -1,0 +1,363 @@
+<div class="flex h-screen" id="pos-terminal" data-store-id="<%= current_store.id %>">
+
+  <!-- LEFT: Product Browser -->
+  <div class="flex-1 flex flex-col bg-slate-800 overflow-hidden">
+
+    <!-- Top Bar -->
+    <div class="flex items-center gap-3 px-4 py-3 bg-slate-900 border-b border-slate-700 flex-shrink-0">
+      <a href="<%= vendor_root_path %>" class="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Dashboard
+      </a>
+      <span class="text-slate-600">|</span>
+      <div class="w-6 h-6 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-xs">B</div>
+      <span class="font-bold text-white text-sm">BazaarPK POS</span>
+      <span class="ml-auto text-slate-400 text-xs font-mono" id="pos-clock"></span>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="px-4 py-3 bg-slate-850 border-b border-slate-700 flex-shrink-0 flex gap-3">
+      <div class="relative flex-1">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+        <input type="text" id="pos-search" placeholder="Search products..."
+               class="w-full bg-slate-700 border border-slate-600 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+      </div>
+      <select id="pos-category" class="bg-slate-700 border border-slate-600 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500 min-w-28">
+        <option value="">All</option>
+        <% @categories.each do |name, id| %>
+          <option value="<%= id %>"><%= name %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="flex-1 overflow-y-auto p-4">
+      <div id="pos-products" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <!-- populated by JS -->
+        <div class="col-span-full flex items-center justify-center py-16 text-slate-500 text-sm" id="pos-loading">
+          <svg class="w-5 h-5 animate-spin mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          Loading products...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Cart / Charge Panel -->
+  <div class="w-80 flex flex-col bg-slate-900 border-l border-slate-700 flex-shrink-0">
+
+    <!-- Customer Info -->
+    <div class="px-4 pt-4 pb-3 border-b border-slate-700 flex-shrink-0">
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Customer (optional)</p>
+      <input type="text" id="customer-name" placeholder="Name"
+             class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 mb-2">
+      <input type="text" id="customer-phone" placeholder="Phone"
+             class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500">
+    </div>
+
+    <!-- Cart Items -->
+    <div class="flex-1 overflow-y-auto px-4 py-3" id="pos-cart-items">
+      <div class="flex flex-col items-center justify-center h-full text-slate-600 text-sm" id="cart-empty-state">
+        <svg class="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <p>Cart is empty</p>
+        <p class="text-xs mt-1 text-slate-700">Tap products to add them</p>
+      </div>
+    </div>
+
+    <!-- Totals + Payment -->
+    <div class="border-t border-slate-700 px-4 pt-3 pb-4 flex-shrink-0 space-y-3">
+      <div class="flex justify-between text-sm text-slate-400">
+        <span>Subtotal</span>
+        <span id="pos-subtotal" class="font-medium text-slate-300">Rs. 0</span>
+      </div>
+      <div class="flex justify-between text-base font-bold border-t border-slate-700 pt-3">
+        <span class="text-white">Total</span>
+        <span class="text-green-400 text-lg" id="pos-total">Rs. 0</span>
+      </div>
+
+      <!-- Payment method -->
+      <div>
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Payment</p>
+        <div class="grid grid-cols-2 gap-2 text-xs" id="payment-buttons">
+          <button onclick="selectPayment('cash_on_delivery')" data-method="cash_on_delivery"
+                  class="payment-btn active py-2 rounded-xl border border-green-500 bg-green-500/20 text-green-300 font-semibold transition">
+            Cash
+          </button>
+          <button onclick="selectPayment('jazzcash')" data-method="jazzcash"
+                  class="payment-btn py-2 rounded-xl border border-slate-600 text-slate-400 font-semibold hover:border-slate-500 transition">
+            JazzCash
+          </button>
+          <button onclick="selectPayment('easypaisa')" data-method="easypaisa"
+                  class="payment-btn py-2 rounded-xl border border-slate-600 text-slate-400 font-semibold hover:border-slate-500 transition">
+            Easypaisa
+          </button>
+          <button onclick="selectPayment('bank_transfer')" data-method="bank_transfer"
+                  class="payment-btn py-2 rounded-xl border border-slate-600 text-slate-400 font-semibold hover:border-slate-500 transition">
+            Bank
+          </button>
+        </div>
+      </div>
+
+      <!-- Charge Button -->
+      <button id="charge-btn" onclick="chargeSale()"
+              class="w-full py-4 rounded-2xl bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold text-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled>
+        <span id="charge-label">Charge — Rs. 0</span>
+      </button>
+
+      <!-- Clear Cart -->
+      <button onclick="clearCart()" class="w-full py-2 rounded-xl text-slate-500 hover:text-red-400 text-xs font-medium transition">
+        Clear Cart
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Variant Modal -->
+<div id="variant-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+  <div class="bg-slate-800 rounded-2xl border border-slate-600 w-full max-w-sm p-6">
+    <h3 class="font-bold text-white mb-1" id="variant-modal-title">Select Variant</h3>
+    <p class="text-slate-400 text-sm mb-4" id="variant-modal-product"></p>
+    <div id="variant-options" class="space-y-2 mb-5"></div>
+    <button onclick="closeVariantModal()" class="w-full py-2 rounded-xl border border-slate-600 text-slate-400 text-sm hover:border-slate-500 transition">Cancel</button>
+  </div>
+</div>
+
+<!-- Success Toast -->
+<div id="pos-toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white px-6 py-3 rounded-xl font-semibold shadow-2xl text-sm transition-all duration-300">
+  Sale completed!
+</div>
+
+<script>
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
+const SEARCH_URL = "<%= search_products_vendor_pos_path %>";
+const CHARGE_URL = "<%= charge_vendor_pos_path %>";
+const RECEIPT_BASE = "<%= vendor_root_path %>pos/receipt/";
+
+let cart = {};
+let products = [];
+let selectedPayment = "cash_on_delivery";
+
+// Clock
+function updateClock() {
+  const el = document.getElementById("pos-clock");
+  if (el) el.textContent = new Date().toLocaleTimeString("en-PK");
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Load products
+async function loadProducts(query = "", categoryId = "") {
+  document.getElementById("pos-loading").classList.remove("hidden");
+  document.getElementById("pos-products").innerHTML = '<div class="col-span-full flex items-center justify-center py-16 text-slate-500 text-sm" id="pos-loading"><svg class="w-5 h-5 animate-spin mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Loading...</div>';
+
+  const body = new URLSearchParams({ q: query, category_id: categoryId });
+  const resp = await fetch(SEARCH_URL, {
+    method: "POST",
+    headers: { "X-CSRF-Token": CSRF_TOKEN, "Content-Type": "application/x-www-form-urlencoded" },
+    body
+  });
+  products = await resp.json();
+  renderProducts();
+}
+
+function renderProducts() {
+  const grid = document.getElementById("pos-products");
+  if (products.length === 0) {
+    grid.innerHTML = '<div class="col-span-full text-center py-16 text-slate-500 text-sm">No products found</div>';
+    return;
+  }
+  grid.innerHTML = products.map(p => `
+    <button onclick="handleProductTap(${p.id})"
+            class="bg-slate-700 hover:bg-slate-600 active:scale-95 rounded-2xl p-3 text-left transition border border-slate-600 hover:border-green-500 group">
+      <div class="w-full aspect-square rounded-xl overflow-hidden bg-slate-600 mb-3 flex items-center justify-center">
+        ${p.image_url
+          ? `<img src="${p.image_url}" class="w-full h-full object-cover">`
+          : `<span class="text-3xl">📦</span>`}
+      </div>
+      <p class="text-xs font-semibold text-white leading-tight truncate">${p.name}</p>
+      <p class="text-green-400 text-sm font-bold mt-1">Rs. ${p.price.toLocaleString()}</p>
+      ${p.stock !== null ? `<p class="text-xs text-slate-500 mt-0.5">${p.stock > 0 ? p.stock + " left" : '<span class="text-red-400">Out of stock</span>'}</p>` : ""}
+    </button>
+  `).join("");
+}
+
+function handleProductTap(productId) {
+  const product = products.find(p => p.id === productId);
+  if (!product) return;
+  if (product.stock !== null && product.stock <= 0) return;
+
+  if (product.variants && product.variants.length > 0) {
+    openVariantModal(product);
+  } else {
+    addToCart(product, null);
+  }
+}
+
+function openVariantModal(product) {
+  document.getElementById("variant-modal-title").textContent = "Select Variant";
+  document.getElementById("variant-modal-product").textContent = product.name;
+  const opts = document.getElementById("variant-options");
+  opts.innerHTML = product.variants.map(v => `
+    <button onclick="addToCart(${JSON.stringify(product).replace(/"/g, '&quot;')}, ${JSON.stringify(v).replace(/"/g, '&quot;')}); closeVariantModal();"
+            class="w-full flex items-center justify-between p-3 bg-slate-700 rounded-xl hover:bg-slate-600 transition border border-slate-600 hover:border-green-500">
+      <span class="text-sm font-medium text-white">${v.name}: ${v.value}</span>
+      <span class="text-green-400 text-sm font-bold">Rs. ${(product.price + v.price_modifier).toLocaleString()}</span>
+    </button>
+  `).join("");
+  document.getElementById("variant-modal").classList.remove("hidden");
+}
+
+function closeVariantModal() {
+  document.getElementById("variant-modal").classList.add("hidden");
+}
+
+function addToCart(product, variant) {
+  const key = variant ? `${product.id}-${variant.id}` : `${product.id}`;
+  const price = product.price + (variant?.price_modifier || 0);
+
+  if (cart[key]) {
+    cart[key].quantity++;
+  } else {
+    cart[key] = { product, variant, quantity: 1, price, key };
+  }
+  renderCart();
+}
+
+function removeFromCart(key) {
+  delete cart[key];
+  renderCart();
+}
+
+function updateQty(key, delta) {
+  if (!cart[key]) return;
+  cart[key].quantity = Math.max(1, cart[key].quantity + delta);
+  renderCart();
+}
+
+function clearCart() {
+  cart = {};
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById("pos-cart-items");
+  const emptyState = document.getElementById("cart-empty-state");
+  const items = Object.values(cart);
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-600 text-sm" id="cart-empty-state">
+      <svg class="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      <p>Cart is empty</p><p class="text-xs mt-1 text-slate-700">Tap products to add them</p>
+    </div>`;
+    updateTotals(0);
+    return;
+  }
+
+  container.innerHTML = items.map(item => `
+    <div class="flex items-center gap-3 py-2.5 border-b border-slate-800">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-white truncate">${item.product.name}</p>
+        ${item.variant ? `<p class="text-xs text-slate-500">${item.variant.name}: ${item.variant.value}</p>` : ""}
+        <p class="text-xs text-green-400 font-bold mt-0.5">Rs. ${(item.price * item.quantity).toLocaleString()}</p>
+      </div>
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <button onclick="updateQty('${item.key}', -1)"
+                class="w-6 h-6 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold text-sm flex items-center justify-center transition">−</button>
+        <span class="w-6 text-center text-sm font-bold text-white">${item.quantity}</span>
+        <button onclick="updateQty('${item.key}', 1)"
+                class="w-6 h-6 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold text-sm flex items-center justify-center transition">+</button>
+        <button onclick="removeFromCart('${item.key}')"
+                class="w-6 h-6 rounded-lg bg-slate-700 hover:bg-red-500/20 text-slate-500 hover:text-red-400 flex items-center justify-center ml-1 transition">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  updateTotals(total);
+}
+
+function updateTotals(total) {
+  document.getElementById("pos-subtotal").textContent = "Rs. " + total.toLocaleString();
+  document.getElementById("pos-total").textContent = "Rs. " + total.toLocaleString();
+  document.getElementById("charge-label").textContent = "Charge — Rs. " + total.toLocaleString();
+  document.getElementById("charge-btn").disabled = total === 0;
+}
+
+function selectPayment(method) {
+  selectedPayment = method;
+  document.querySelectorAll(".payment-btn").forEach(btn => {
+    const isActive = btn.dataset.method === method;
+    btn.className = isActive
+      ? "payment-btn active py-2 rounded-xl border border-green-500 bg-green-500/20 text-green-300 font-semibold transition"
+      : "payment-btn py-2 rounded-xl border border-slate-600 text-slate-400 font-semibold hover:border-slate-500 transition";
+  });
+}
+
+async function chargeSale() {
+  const items = Object.values(cart);
+  if (items.length === 0) return;
+
+  const btn = document.getElementById("charge-btn");
+  btn.disabled = true;
+  btn.querySelector("#charge-label").textContent = "Processing...";
+
+  const payload = {
+    items: items.map(i => ({
+      product_id: i.product.id,
+      variant_id: i.variant?.id || "",
+      quantity: i.quantity
+    })),
+    customer_name: document.getElementById("customer-name").value,
+    customer_phone: document.getElementById("customer-phone").value,
+    payment_method: selectedPayment
+  };
+
+  try {
+    const resp = await fetch(CHARGE_URL, {
+      method: "POST",
+      headers: { "X-CSRF-Token": CSRF_TOKEN, "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      showToast("Sale complete! Rs. " + data.total.toLocaleString());
+      clearCart();
+      document.getElementById("customer-name").value = "";
+      document.getElementById("customer-phone").value = "";
+      // Open receipt in new tab
+      window.open(RECEIPT_BASE + data.order_id, "_blank");
+    } else {
+      showToast("Error: " + data.error, true);
+    }
+  } catch (e) {
+    showToast("Network error. Try again.", true);
+  } finally {
+    btn.disabled = false;
+    updateTotals(Object.values(cart).reduce((s, i) => s + i.price * i.quantity, 0));
+  }
+}
+
+function showToast(msg, isError = false) {
+  const toast = document.getElementById("pos-toast");
+  toast.textContent = msg;
+  toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl font-semibold shadow-2xl text-sm transition-all duration-300 text-white ${isError ? "bg-red-600" : "bg-green-600"}`;
+  toast.classList.remove("hidden");
+  setTimeout(() => toast.classList.add("hidden"), 3000);
+}
+
+// Search with debounce
+let searchTimer;
+document.getElementById("pos-search").addEventListener("input", e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadProducts(e.target.value, document.getElementById("pos-category").value), 300);
+});
+document.getElementById("pos-category").addEventListener("change", e => {
+  loadProducts(document.getElementById("pos-search").value, e.target.value);
+});
+
+// Initial load
+loadProducts();
+</script>

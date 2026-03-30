@@ -24,6 +24,12 @@ Rails.application.routes.draw do
       resources :variants, controller: "product_variants", shallow: true
     end
     resources :orders, only: %i[index show update]
+    resource :pos, only: %i[show], controller: "pos" do
+      post :search_products
+      post :charge
+      get :receipt, path: "receipt/:order_id"
+    end
+    resource :analytics, only: %i[show], controller: "analytics"
   end
 
   root "home#index"
