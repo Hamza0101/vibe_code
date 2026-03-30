@@ -1,0 +1,208 @@
+<% content_for :page_title, "Analytics" %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Range selector -->
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <p class="text-sm text-slate-500">Revenue & performance for the last <span class="font-bold text-slate-900"><%= @range_days %> days</span></p>
+  </div>
+  <div class="flex gap-2">
+    <% [7, 30, 90].each do |days| %>
+      <%= link_to "#{days}d", vendor_analytics_path(days: days),
+            class: "px-3 py-1.5 rounded-xl text-xs font-bold transition #{@range_days == days ? 'bg-green-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}" %>
+    <% end %>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
+        <svg class="w-4 h-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Revenue</p>
+    </div>
+    <p class="text-2xl font-black text-green-700">Rs. <%= number_with_delimiter(@total_revenue.to_i) %></p>
+    <p class="text-xs text-slate-400 mt-1">All time delivered orders</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+        <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      </div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Orders</p>
+    </div>
+    <p class="text-2xl font-black text-slate-900"><%= number_with_delimiter(@orders_count) %></p>
+    <p class="text-xs text-slate-400 mt-1"><%= @pending_orders %> pending</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
+        <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      </div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Avg Order</p>
+    </div>
+    <p class="text-2xl font-black text-slate-900">Rs. <%= number_with_delimiter(@avg_order_value.to_i) %></p>
+    <p class="text-xs text-slate-400 mt-1">Per delivered order</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
+        <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">POS Sales</p>
+    </div>
+    <p class="text-2xl font-black text-slate-900"><%= number_with_delimiter(@pos_count) %></p>
+    <p class="text-xs text-slate-400 mt-1"><%= number_with_delimiter(@online_count) %> online orders</p>
+  </div>
+</div>
+
+<!-- Revenue Chart -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+  <div class="flex items-center justify-between mb-5">
+    <h3 class="font-bold text-slate-900">Daily Revenue</h3>
+    <span class="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full font-medium">Last <%= @range_days %> days</span>
+  </div>
+  <div class="relative h-64">
+    <canvas id="revenue-chart"></canvas>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- Channel Split -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h3 class="font-bold text-slate-900 mb-5">Sales Channel</h3>
+    <% total_orders = @online_count + @pos_count %>
+    <% if total_orders > 0 %>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-sm mb-1.5">
+            <span class="font-medium text-slate-700">Online Orders</span>
+            <span class="font-bold text-slate-900"><%= @online_count %> (<%= ((@online_count.to_f / total_orders) * 100).round %>%)</span>
+          </div>
+          <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-blue-500 rounded-full" style="width: <%= (@online_count.to_f / total_orders * 100).round %>%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-sm mb-1.5">
+            <span class="font-medium text-slate-700">POS (Walk-in)</span>
+            <span class="font-bold text-slate-900"><%= @pos_count %> (<%= ((@pos_count.to_f / total_orders) * 100).round %>%)</span>
+          </div>
+          <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-green-500 rounded-full" style="width: <%= (@pos_count.to_f / total_orders * 100).round %>%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <div class="relative h-36">
+          <canvas id="channel-chart"></canvas>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-10 text-slate-400 text-sm">No orders yet</div>
+    <% end %>
+  </div>
+
+  <!-- Top Products -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h3 class="font-bold text-slate-900 mb-5">Top Products by Revenue</h3>
+    <% if @top_products.any? %>
+      <% max_rev = @top_products.values.max.to_f %>
+      <div class="space-y-3">
+        <% @top_products.each_with_index do |(key, revenue), idx| %>
+          <% name = key.is_a?(Array) ? key[1] : key %>
+          <div>
+            <div class="flex justify-between text-sm mb-1.5">
+              <span class="font-medium text-slate-700 truncate max-w-40">#<%= idx + 1 %> <%= name %></span>
+              <span class="font-bold text-green-700 flex-shrink-0">Rs. <%= number_with_delimiter(revenue.to_i) %></span>
+            </div>
+            <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style="width: <%= (revenue.to_f / max_rev * 100).round %>%"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-10 text-slate-400 text-sm">No sales data yet</div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Quick POS link -->
+<div class="mt-6 bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-5 flex items-center justify-between">
+  <div>
+    <h3 class="font-bold text-white">Point of Sale Terminal</h3>
+    <p class="text-slate-400 text-sm mt-1">Open the full-screen POS for walk-in customers</p>
+  </div>
+  <%= link_to vendor_pos_path, target: "_blank",
+        class: "flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition flex-shrink-0" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+    Open POS
+  <% end %>
+</div>
+
+<script>
+// Revenue chart
+const labels = <%= raw @chart_labels.to_json %>;
+const data = <%= raw @chart_data.to_json %>;
+
+new Chart(document.getElementById("revenue-chart"), {
+  type: "line",
+  data: {
+    labels: labels.map(l => {
+      const d = new Date(l);
+      return d.toLocaleDateString("en-PK", { month: "short", day: "numeric" });
+    }),
+    datasets: [{
+      label: "Revenue (Rs.)",
+      data,
+      borderColor: "#16a34a",
+      backgroundColor: "rgba(22,163,74,0.08)",
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: "#16a34a",
+      pointRadius: data.length <= 30 ? 3 : 0,
+      pointHoverRadius: 5
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 11 } } },
+      y: { grid: { color: "#f1f5f9" }, ticks: { font: { size: 11 }, callback: v => "Rs. " + v.toLocaleString() } }
+    }
+  }
+});
+
+<% if (@online_count + @pos_count) > 0 %>
+new Chart(document.getElementById("channel-chart"), {
+  type: "doughnut",
+  data: {
+    labels: ["Online", "POS"],
+    datasets: [{
+      data: [<%= @online_count %>, <%= @pos_count %>],
+      backgroundColor: ["#3b82f6", "#16a34a"],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "70%",
+    plugins: {
+      legend: { position: "bottom", labels: { font: { size: 11 }, padding: 12 } }
+    }
+  }
+});
+<% end %>
+</script>

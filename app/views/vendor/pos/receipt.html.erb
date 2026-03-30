@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Receipt — <%= @order.order_number %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Courier New', monospace; font-size: 12px; color: #000; background: #fff; padding: 16px; max-width: 320px; margin: 0 auto; }
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .divider { border-top: 1px dashed #000; margin: 8px 0; }
+    .row { display: flex; justify-content: space-between; margin: 4px 0; }
+    .total-row { font-size: 14px; font-weight: bold; }
+    @media print { body { padding: 0; } button { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="center bold" style="font-size:16px; margin-bottom:4px;"><%= current_store.name %></div>
+  <% if current_store.address.present? %>
+    <div class="center" style="font-size:11px; color:#555;"><%= current_store.address %></div>
+  <% end %>
+  <% if current_store.phone.present? %>
+    <div class="center" style="font-size:11px; color:#555;">Tel: <%= current_store.phone %></div>
+  <% end %>
+
+  <div class="divider"></div>
+
+  <div class="center bold">RECEIPT</div>
+  <div class="row"><span>Order:</span><span><%= @order.order_number %></span></div>
+  <div class="row"><span>Date:</span><span><%= @order.created_at.strftime("%d/%m/%Y %I:%M %p") %></span></div>
+  <% if @order.pos_customer_name.present? %>
+    <div class="row"><span>Customer:</span><span><%= @order.pos_customer_name %></span></div>
+  <% end %>
+  <% if @order.pos_customer_phone.present? %>
+    <div class="row"><span>Phone:</span><span><%= @order.pos_customer_phone %></span></div>
+  <% end %>
+  <div class="row"><span>Payment:</span><span><%= @order.payment_method.humanize %></span></div>
+
+  <div class="divider"></div>
+
+  <% @order.order_items.includes(:product, :product_variant).each do |item| %>
+    <div class="row">
+      <span style="max-width:180px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+        <%= item.product.name %><% if item.product_variant %> (<%= item.product_variant.value %>)<% end %>
+      </span>
+      <span>x<%= item.quantity %></span>
+    </div>
+    <div class="row" style="margin-top:-2px;">
+      <span style="color:#555;">@ Rs. <%= item.unit_price.to_i %></span>
+      <span class="bold">Rs. <%= item.line_total.to_i %></span>
+    </div>
+  <% end %>
+
+  <div class="divider"></div>
+
+  <div class="row total-row">
+    <span>TOTAL</span>
+    <span>Rs. <%= @order.total.to_i %></span>
+  </div>
+
+  <div class="divider"></div>
+  <div class="center" style="margin-top:8px; font-size:11px; color:#555;">Thank you for shopping!</div>
+  <div class="center" style="font-size:10px; color:#aaa; margin-top:4px;">Powered by BazaarPK</div>
+
+  <div style="margin-top:20px; text-align:center;">
+    <button onclick="window.print()" style="padding:8px 20px; background:#16a34a; color:#fff; border:none; border-radius:6px; font-size:13px; cursor:pointer; font-family:sans-serif;">🖨 Print</button>
+    <button onclick="window.close()" style="padding:8px 20px; background:#e2e8f0; color:#334155; border:none; border-radius:6px; font-size:13px; cursor:pointer; margin-left:8px; font-family:sans-serif;">Close</button>
+  </div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 class Order < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :store
   belongs_to :address, optional: true
   has_many :order_items, dependent: :destroy
@@ -12,6 +12,11 @@ class Order < ApplicationRecord
     delivered: "delivered",
     cancelled: "cancelled"
   }, _default: "pending"
+
+  enum sale_channel: {
+    online: "online",
+    pos: "pos"
+  }, _default: "online"
 
   enum payment_method: {
     cash_on_delivery: "cash_on_delivery",

@@ -23,6 +23,16 @@ class CartsController < ApplicationController
       return
     end
 
+    # Enforce single-store cart
+    existing_store_id = current_cart.cart_items.joins(:product).pick("products.store_id")
+    if existing_store_id.present? && existing_store_id != product.store_id
+      respond_to do |format|
+        format.html { redirect_back fallback_location: root_path, alert: "Your cart already has items from another store. Please clear it first." }
+        format.turbo_stream { render turbo_stream: turbo_stream.update("cart-flash", "<p class='text-amber-600 font-medium'>Cart has items from another store.</p>") }
+      end
+      return
+    end
+
     variant = params[:product_variant_id].present? ? ProductVariant.find(params[:product_variant_id]) : nil
     quantity = (params[:quantity] || 1).to_i
 
