@@ -1,52 +1,133 @@
 <% content_for :title, "Sign In" %>
 
-<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-  <div class="max-w-md w-full bg-white rounded-xl shadow-md p-8">
-    <div class="text-center mb-6">
-      <span class="text-4xl">🛒</span>
-      <h2 class="text-2xl font-bold mt-2">Sign in to BazaarPK</h2>
+<div class="min-h-screen flex">
+
+  <!-- Left branding panel -->
+  <div class="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 relative overflow-hidden flex-col justify-between p-12">
+    <!-- Background glows -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+      <div class="absolute top-20 left-20 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 right-10 w-72 h-72 bg-emerald-400/8 rounded-full blur-3xl"></div>
     </div>
 
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-      <div class="space-y-4">
-        <div>
-          <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email",
-                class: "w-full border rounded-lg px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500" %>
+    <div class="relative">
+      <a href="<%= root_path %>" class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
+          <span class="text-white font-black text-lg">B</span>
         </div>
+        <span class="text-xl font-bold text-white tracking-tight">BazaarPK</span>
+      </a>
+    </div>
 
-        <div>
-          <%= f.label :password, class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.password_field :password, autocomplete: "current-password",
-                class: "w-full border rounded-lg px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500" %>
+    <div class="relative">
+      <div class="inline-flex items-center gap-2 bg-green-500/15 border border-green-500/20 rounded-full px-4 py-1.5 mb-6">
+        <span class="text-green-400 text-xs font-bold uppercase tracking-widest">Pakistan's #1 Local Marketplace</span>
+      </div>
+      <h2 class="text-4xl font-bold text-white leading-tight mb-4">
+        Grow your local<br>business online.
+      </h2>
+      <p class="text-slate-400 text-lg leading-relaxed mb-10">
+        Thousands of businesses across Pakistan trust BazaarPK to reach more customers and increase revenue.
+      </p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white/5 border border-white/8 rounded-2xl p-5">
+          <p class="text-3xl font-black text-white mb-1">5,000+</p>
+          <p class="text-slate-400 text-sm font-medium">Active stores</p>
         </div>
+        <div class="bg-white/5 border border-white/8 rounded-2xl p-5">
+          <p class="text-3xl font-black text-white mb-1">50K+</p>
+          <p class="text-slate-400 text-sm font-medium">Products listed</p>
+        </div>
+        <div class="bg-white/5 border border-white/8 rounded-2xl p-5">
+          <p class="text-3xl font-black text-white mb-1">200K+</p>
+          <p class="text-slate-400 text-sm font-medium">Happy customers</p>
+        </div>
+        <div class="bg-white/5 border border-white/8 rounded-2xl p-5">
+          <p class="text-3xl font-black text-white mb-1">10+</p>
+          <p class="text-slate-400 text-sm font-medium">Cities covered</p>
+        </div>
+      </div>
+    </div>
 
-        <% if devise_mapping.rememberable? %>
-          <div class="flex items-center justify-between">
-            <label class="flex items-center space-x-2 text-sm text-gray-600">
-              <%= f.check_box :remember_me %>
-              <span>Remember me</span>
-            </label>
-            <%= link_to "Forgot password?", new_user_password_path, class: "text-green-600 text-sm hover:underline" %>
+    <div class="relative text-xs text-slate-600">
+      &copy; <%= Date.today.year %> BazaarPK · Made with ❤️ in Pakistan
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="flex-1 flex items-center justify-center bg-slate-50 px-6 py-12">
+    <div class="w-full max-w-md">
+
+      <!-- Mobile logo -->
+      <div class="flex items-center justify-center gap-2 mb-8 lg:hidden">
+        <div class="w-9 h-9 bg-green-600 rounded-xl flex items-center justify-center shadow-md">
+          <span class="text-white font-black text-base">B</span>
+        </div>
+        <span class="text-xl font-bold text-slate-900">BazaarPK</span>
+      </div>
+
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
+        <p class="text-slate-500 mt-1.5 text-sm">Sign in to your account to continue</p>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+          <div class="space-y-5">
+            <div>
+              <%= f.label :email %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                    placeholder: "you@example.com" %>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-sm font-semibold text-slate-700 m-0">Password</label>
+                <%= link_to "Forgot password?", new_user_password_path,
+                      class: "text-xs text-green-600 hover:text-green-700 font-medium" %>
+              </div>
+              <%= f.password_field :password, autocomplete: "current-password",
+                    placeholder: "••••••••" %>
+            </div>
+
+            <% if devise_mapping.rememberable? %>
+              <label class="flex items-center gap-3 cursor-pointer m-0">
+                <%= f.check_box :remember_me,
+                      class: "w-4 h-4 rounded border-slate-300 text-green-600 focus:ring-green-500 cursor-pointer" %>
+                <span class="text-sm text-slate-600 font-medium">Keep me signed in</span>
+              </label>
+            <% end %>
+
+            <%= f.submit "Sign In",
+                  class: "w-full py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-xl shadow-sm cursor-pointer transition duration-150 text-sm mt-2" %>
           </div>
         <% end %>
-
-        <%= f.submit "Sign In", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg cursor-pointer" %>
       </div>
-    <% end %>
 
-    <div class="text-center mt-4 space-y-2 text-sm text-gray-500">
-      <p>New customer? <%= link_to "Create an account", new_user_registration_path, class: "text-green-600 hover:underline" %></p>
-      <p>Own a store? <%= link_to "Register your store free", new_user_registration_path(role: "vendor"), class: "text-green-600 hover:underline" %></p>
+      <div class="text-center mt-6 space-y-2 text-sm">
+        <p class="text-slate-500">
+          Don't have an account?
+          <%= link_to "Create one free", new_user_registration_path,
+                class: "text-green-600 hover:text-green-700 font-semibold" %>
+        </p>
+        <p class="text-slate-500">
+          Opening a store?
+          <%= link_to "Register your business", new_user_registration_path(role: "vendor"),
+                class: "text-green-600 hover:text-green-700 font-semibold" %>
+        </p>
+      </div>
+
+      <% if Rails.env.development? %>
+        <div class="mt-8 bg-white border border-slate-200 rounded-xl p-4 text-xs text-slate-500">
+          <p class="font-semibold text-slate-700 mb-2">Dev test accounts</p>
+          <div class="space-y-1">
+            <p>Admin: <span class="font-mono">admin@bazaarpk.com</span> / <span class="font-mono">admin123456</span></p>
+            <p>Vendor: <span class="font-mono">vendor@test.com</span> / <span class="font-mono">password123</span></p>
+            <p>Customer: <span class="font-mono">customer@test.com</span> / <span class="font-mono">password123</span></p>
+          </div>
+        </div>
+      <% end %>
     </div>
-
-    <% if Rails.env.development? %>
-      <div class="mt-6 bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
-        <p class="font-semibold mb-1">Dev test accounts:</p>
-        <p>Admin: admin@bazaarpk.com / admin123456</p>
-        <p>Vendor: vendor@test.com / password123</p>
-        <p>Customer: customer@test.com / password123</p>
-      </div>
-    <% end %>
   </div>
 </div>

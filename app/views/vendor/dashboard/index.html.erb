@@ -91,7 +91,9 @@
           <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
             <div>
               <p class="text-sm font-semibold text-slate-800">#<%= order.order_number %></p>
-              <p class="text-xs text-slate-400 mt-0.5"><%= order.user.name || order.user.email.split("@").first %></p>
+              <p class="text-xs text-slate-400 mt-0.5">
+                <%= order.pos? ? (order.pos_customer_name.presence || "Walk-in") : (order.user&.name || order.user&.email&.split("@")&.first || "—") %>
+              </p>
             </div>
             <div class="text-right">
               <span class="inline-block text-xs px-2.5 py-0.5 rounded-full font-semibold
