@@ -27,8 +27,13 @@ class OrdersController < ApplicationController
       return
     end
 
-    store_id = @cart.cart_items.first.product.store_id
-    @store = Store.verified.find_by(id: store_id)
+    store_ids = @cart.cart_items.joins(:product).distinct.pluck("products.store_id")
+    if store_ids.size > 1
+      redirect_to cart_path, alert: "Your cart has items from multiple stores. Please keep items from one store only."
+      return
+    end
+
+    @store = Store.verified.find_by(id: store_ids.first)
     unless @store
       redirect_to cart_path, alert: "Store is no longer available."
       return

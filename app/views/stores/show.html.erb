@@ -103,7 +103,7 @@
         <% @reviews.each do |review| %>
           <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <div class="flex items-center justify-between mb-3">
-              <span class="font-semibold text-sm text-slate-800"><%= review.user.name.presence || review.user.email.split("@").first %></span>
+              <span class="font-semibold text-sm text-slate-800"><%= review.user&.name.presence || review.user&.email&.split("@")&.first || "Customer" %></span>
               <div class="flex text-amber-400">
                 <% review.rating.times do %><span>★</span><% end %>
                 <% (5 - review.rating).times do %><span class="text-slate-200">★</span><% end %>

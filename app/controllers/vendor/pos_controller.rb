@@ -72,11 +72,13 @@ class Vendor::PosController < Vendor::BaseController
           subtotal: unit_price * qty
         )
 
-        # Decrement stock if tracked
+        # Validate and decrement stock
         if product.stock.present?
+          raise StandardError, "Insufficient stock for \"#{product.name}\" (#{product.stock} available)" if product.stock < qty
           product.decrement!(:stock, qty)
         end
         if variant&.stock.present?
+          raise StandardError, "Insufficient variant stock for \"#{product.name} - #{variant.value}\" (#{variant.stock} available)" if variant.stock < qty
           variant.decrement!(:stock, qty)
         end
       end

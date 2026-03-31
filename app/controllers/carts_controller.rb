@@ -33,8 +33,18 @@ class CartsController < ApplicationController
       return
     end
 
-    variant = params[:product_variant_id].present? ? ProductVariant.find(params[:product_variant_id]) : nil
-    quantity = (params[:quantity] || 1).to_i
+    variant = nil
+    if params[:product_variant_id].present?
+      variant = ProductVariant.find_by(id: params[:product_variant_id])
+      unless variant
+        respond_to do |format|
+          format.html { redirect_back fallback_location: root_path, alert: "Selected variant not found." }
+          format.turbo_stream { render turbo_stream: turbo_stream.update("cart-flash", "<p class='text-red-600'>Variant not found.</p>") }
+        end
+        return
+      end
+    end
+    quantity = [(params[:quantity] || 1).to_i, 1].max
 
     current_cart.add_item(product, variant, quantity)
 
@@ -50,9 +60,11 @@ class CartsController < ApplicationController
   end
 
   def remove_item
-    product = Product.find(params[:product_id])
-    variant = params[:product_variant_id].present? ? ProductVariant.find(params[:product_variant_id]) : nil
-    current_cart.remove_item(product, variant)
+    product = Product.find_by(id: params[:product_id])
+    if product
+      variant = params[:product_variant_id].present? ? ProductVariant.find_by(id: params[:product_variant_id]) : nil
+      current_cart.remove_item(product, variant)
+    end
     redirect_to cart_path, notice: "Item removed."
   end
 
