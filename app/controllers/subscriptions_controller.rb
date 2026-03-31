@@ -10,6 +10,12 @@ class SubscriptionsController < ApplicationController
 
   def create
     plan = SubscriptionPlan.friendly.find(params[:plan_id])
+    store = current_user.store
+
+    unless store
+      redirect_to edit_vendor_store_path, alert: "Please set up your store before subscribing."
+      return
+    end
 
     if plan.free?
       activate_free_plan(plan)
@@ -23,7 +29,7 @@ class SubscriptionsController < ApplicationController
         line_items: [{
           price_data: {
             currency: "pkr",
-            product_data: { name: "#{plan.name} Plan - #{current_user.store.name}" },
+            product_data: { name: "#{plan.name} Plan - #{store.name}" },
             unit_amount: plan.price_pkr * 100,
             recurring: { interval: "month" }
           },
@@ -32,7 +38,7 @@ class SubscriptionsController < ApplicationController
         mode: "subscription",
         success_url: subscriptions_url + "?session_id={CHECKOUT_SESSION_ID}&plan_id=#{plan.id}",
         cancel_url: subscriptions_url,
-        metadata: { store_id: current_user.store.id, plan_id: plan.id }
+        metadata: { store_id: store.id, plan_id: plan.id }
       )
       redirect_to session.url, allow_other_host: true
     else

@@ -8,7 +8,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def create
     super do |user|
       if user.vendor? && user.persisted?
-        redirect_to new_vendor_store_path, notice: "Welcome! Please set up your store." and return
+        redirect_to edit_vendor_store_path, notice: "Welcome! Please set up your store." and return
       end
     end
   end
@@ -17,7 +17,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def after_sign_up_path_for(resource)
     if resource.vendor?
-      new_vendor_store_path
+      edit_vendor_store_path
     elsif resource.admin?
       admin_root_path
     else

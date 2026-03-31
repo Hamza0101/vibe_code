@@ -28,10 +28,10 @@ class Order < ApplicationRecord
   validates :status, presence: true
   validates :total, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
-  scope :recent, -> { order(created_at: :desc) }
-  scope :for_vendor, ->(store) { where(store: store) }
-
-  before_create :generate_order_number
+  scope :recent,      -> { order(created_at: :desc) }
+  scope :for_vendor,  ->(store) { where(store: store) }
+  scope :this_month,  -> { where("created_at >= ?", Time.current.beginning_of_month) }
+  scope :today,       -> { where("DATE(created_at) = ?", Date.today) }
 
   def calculate_totals!
     self.subtotal = order_items.sum { |i| i.unit_price * i.quantity }
@@ -48,10 +48,4 @@ class Order < ApplicationRecord
     "ORD-#{id.to_s.rjust(6, '0')}"
   end
 
-  private
-
-  def generate_order_number
-    # order_number is derived from id after save; set a placeholder
-    true
-  end
 end

@@ -6,9 +6,14 @@ class WebhooksController < ApplicationController
     sig_header = request.env["HTTP_STRIPE_SIGNATURE"]
     endpoint_secret = ENV["STRIPE_WEBHOOK_SECRET"]
 
+    unless endpoint_secret.present?
+      render json: { error: "Webhook secret not configured" }, status: :bad_request
+      return
+    end
+
     begin
       event = Stripe::Webhook.construct_event(payload, sig_header, endpoint_secret)
-    rescue JSON::ParserError, Stripe::SignatureVerificationError => e
+    rescue JSON::ParserError, Stripe::SignatureVerificationError, ArgumentError => e
       render json: { error: e.message }, status: :bad_request
       return
     end

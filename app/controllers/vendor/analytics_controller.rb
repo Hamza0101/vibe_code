@@ -21,7 +21,8 @@ class Vendor::AnalyticsController < Vendor::BaseController
     @total_revenue   = store.orders.delivered.sum(:total)
     @orders_count    = store.orders.count
     @pending_orders  = store.orders.pending.count
-    @avg_order_value = store.orders.delivered.any? ? (store.orders.delivered.sum(:total) / store.orders.delivered.count) : 0
+    delivered = store.orders.delivered
+    @avg_order_value = delivered.any? ? (delivered.sum(:total).to_f / delivered.count) : 0
 
     # Online vs POS split
     @online_count = store.orders.where(sale_channel: :online).count
