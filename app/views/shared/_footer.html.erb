@@ -1,57 +1,56 @@
-<footer class="bg-slate-900 text-slate-400 mt-16">
-  <div class="max-w-7xl mx-auto px-4 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-      <!-- Brand -->
-      <div class="md:col-span-1">
-        <div class="flex items-center gap-2 mb-3">
-          <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
-          <span class="text-lg font-bold text-white">BazaarPK</span>
+<footer class="bg-slate-950 text-slate-400 mt-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
+      <!-- Brand (2 cols) -->
+      <div class="md:col-span-2 space-y-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0" style="background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);">
+            <span class="text-white font-black text-sm leading-none">B</span>
+          </div>
+          <span class="text-[15px] font-bold text-white tracking-tight">BazaarPK</span>
         </div>
-        <p class="text-sm leading-relaxed">Pakistan's trusted local business marketplace. Shop from your neighborhood stores.</p>
+        <p class="text-sm text-slate-500 leading-relaxed max-w-xs">
+          Pakistan's trusted marketplace connecting local businesses with customers nationwide.
+        </p>
       </div>
 
       <!-- Marketplace -->
-      <div>
-        <h4 class="text-white font-semibold text-xs mb-3 uppercase tracking-wider">Marketplace</h4>
-        <ul class="space-y-2 text-sm">
-          <li><%= link_to "Browse Stores", stores_path, class: "hover:text-white transition" %></li>
-          <li><%= link_to "Grocery", stores_path(category: "grocery"), class: "hover:text-white transition" %></li>
-          <li><%= link_to "Pharmacy", stores_path(category: "pharmacy"), class: "hover:text-white transition" %></li>
-          <li><%= link_to "Clothing", stores_path(category: "clothing"), class: "hover:text-white transition" %></li>
+      <div class="space-y-4">
+        <h4 class="text-white text-xs font-semibold uppercase tracking-wider">Marketplace</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><%= link_to "Browse Stores", stores_path, class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
+          <li><%= link_to "Grocery", stores_path(category: "grocery"), class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
+          <li><%= link_to "Pharmacy", stores_path(category: "pharmacy"), class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
+          <li><%= link_to "Clothing", stores_path(category: "clothing"), class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
+          <li><%= link_to "Electronics", stores_path(category: "electronics"), class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
         </ul>
       </div>
 
       <!-- Vendors -->
-      <div>
-        <h4 class="text-white font-semibold text-xs mb-3 uppercase tracking-wider">For Vendors</h4>
-        <ul class="space-y-2 text-sm">
-          <li><%= link_to "Register Store", new_user_registration_path(role: "vendor"), class: "hover:text-white transition" %></li>
-          <li><%= link_to "Pricing Plans", subscriptions_path, class: "hover:text-white transition" %></li>
+      <div class="space-y-4">
+        <h4 class="text-white text-xs font-semibold uppercase tracking-wider">Sell on BazaarPK</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><%= link_to "Register Store", new_user_registration_path(role: "vendor"), class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
+          <li><%= link_to "Pricing Plans", subscriptions_path, class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
           <% if user_signed_in? && current_user.vendor? %>
-            <li><%= link_to "My Dashboard", vendor_root_path, class: "hover:text-white transition" %></li>
-          <% end %>
-        </ul>
-      </div>
-
-      <!-- Account -->
-      <div>
-        <h4 class="text-white font-semibold text-xs mb-3 uppercase tracking-wider">Account</h4>
-        <ul class="space-y-2 text-sm">
-          <% if user_signed_in? %>
-            <li><%= link_to "My Orders", orders_path, class: "hover:text-white transition" %></li>
-            <li><%= link_to "Addresses", addresses_path, class: "hover:text-white transition" %></li>
-            <li><%= link_to "Account Settings", edit_user_registration_path, class: "hover:text-white transition" %></li>
-          <% else %>
-            <li><%= link_to "Sign In", new_user_session_path, class: "hover:text-white transition" %></li>
-            <li><%= link_to "Create Account", new_user_registration_path, class: "hover:text-white transition" %></li>
+            <li><%= link_to "My Dashboard", vendor_root_path, class: "text-slate-500 hover:text-slate-200 transition-colors duration-150" %></li>
           <% end %>
         </ul>
       </div>
     </div>
 
-    <div class="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p class="text-xs text-slate-500">&copy; <%= Date.today.year %> BazaarPK. Made with love in Pakistan 🇵🇰</p>
-      <p class="text-xs text-slate-600">Supporting local businesses across Pakistan</p>
+    <!-- Account links row + bottom bar -->
+    <div class="border-t border-slate-800/60 mt-0 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-slate-600">&copy; <%= Date.today.year %> BazaarPK &middot; Supporting local businesses across Pakistan</p>
+      <div class="flex items-center gap-4 text-xs text-slate-600">
+        <% if user_signed_in? %>
+          <%= link_to "My Orders", orders_path, class: "hover:text-slate-400 transition-colors duration-150" %>
+          <%= link_to "Account", edit_user_registration_path, class: "hover:text-slate-400 transition-colors duration-150" %>
+        <% else %>
+          <%= link_to "Sign In", new_user_session_path, class: "hover:text-slate-400 transition-colors duration-150" %>
+          <%= link_to "Create Account", new_user_registration_path, class: "hover:text-slate-400 transition-colors duration-150" %>
+        <% end %>
+      </div>
     </div>
   </div>
 </footer>
